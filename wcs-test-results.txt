@@ -1,0 +1,118 @@
+PASS server version 4.0.0
+PASS schema version 4
+PASS custom room countdown says Elo-rated
+PASS custom WIN: 1200 → 1220 (+20, K=40, E=0.5)
+PASS custom LOSE: 1200 → 1180 (−20)
+PASS both ratings + W/L stored in the database
+PASS two Elo transactions written (one per player)
+PASS match row: kind=custom, rated, before/after saved
+PASS reconnect/refresh does not apply Elo twice
+PASS still exactly 2 Elo transactions after refresh
+PASS history shows +20 for the custom room
+PASS custom DRAW uses the formula: A 1220→1218, B 1180→1182
+PASS custom: the other player wins → gains, loser drops
+PASS anti-farming: rated games per pair capped per 24 h (then casual, no Elo)
+PASS pair cap logged for admin review
+PASS cancelled / not-started custom room: no Elo change
+PASS Elo 1,999: NOT eligible (need 1 more)
+PASS Elo 1,999: direct WebSocket request (frontend bypass) rejected
+PASS state reports NOT QUALIFIED with current/needed Elo
+PASS Elo 2,000: eligible
+PASS Elo 2,001: eligible
+PASS access opens automatically at 2,000
+PASS ineligible attempts logged
+PASS non-admin cannot change WCS config
+PASS admin sets Top N (4) for the test season
+PASS qualification match: Classic EXTREME, not Elo-rated
+PASS database: match stored as wcs_q / extreme
+PASS championship puzzle has exactly one solution
+PASS win = 3 points, loss = 0, Elo untouched
+PASS loser of match 1 keeps playing and scores (no elimination)
+PASS same pair limited to 2 qualification matches per day
+PASS qualification leaderboard: F first with 6 pts (2W 1L)
+PASS leaderboard sorted by points
+PASS H (0 pts) still in Top 4 → provisionally qualified
+PASS entrant with 0 matches is Not Qualified (min matches)
+PASS my position + points
+PASS WCS matches never change Elo: wcs_e
+PASS WCS matches never change Elo: wcs_f
+PASS WCS matches never change Elo: wcs_g
+PASS WCS matches never change Elo: wcs_h
+PASS non-admin cannot end qualification
+PASS qualification closed → knockout bracket of 4 (Semi-Final)
+PASS config (and bracket) locked once the knockout started
+PASS bracket: Semi-Final (2 matches) → Grand Final
+PASS seeding 1 v 4, 2 v 3 (no byes, no unfair advantage)
+PASS only qualified players were seeded
+PASS Semi-Final starts when both are READY; Extreme puzzle
+PASS winner advances
+PASS no-show: the player who was READY wins by walkover
+PASS Grand Final created automatically with both winners
+PASS state exposes the Grand Final
+PASS eliminated player cannot play on
+PASS Grand Final: Extreme match
+PASS Grand Final draw → pre-announced tie-break: fewer mistakes wins
+PASS season finished after the Grand Final
+PASS champion receives WCS CHAMPION + GRANDMASTER SUDOKU
+PASS only one champion per season; nobody else has titles
+PASS Hall of Fame records champion, runner-up and number of titles
+PASS champion profile: titles, Championship Wins 1, Final Result Champion
+PASS runner-up: Final, no titles
+PASS next season (Season 2) opens automatically
+PASS title count on the public profile
+PASS every championship match in the database is Extreme
+PASS today's challenge follows the weekday schedule (survival)
+PASS weekly schedule Mon–Sun
+PASS refresh/second start resumes the same attempt
+PASS solution never sent while the attempt is active
+PASS every player gets the same puzzle today
+PASS server counts mistakes
+PASS maximum 3 attempts per day (server)
+PASS clean solve on a lives day
+PASS limited lives: attempt fails when lives run out
+PASS impossibly fast solve flagged, hidden from leaderboard
+PASS anti-cheat log written
+PASS admin review (dismiss) restores the result
+PASS player can file an appeal
+PASS admin resolves the appeal
+PASS day 2026-11-05: technique, attempts reset
+PASS technique: hints disabled by the server
+PASS Technique challenge names its technique: box_line
+PASS day 2026-11-06: mystery, attempts reset
+PASS Mystery objective hidden before playing
+PASS day 2026-11-07: extreme, attempts reset
+PASS Saturday puzzle graded Extreme
+PASS day 2026-11-08: ultimate, attempts reset
+PASS ultimate: hints disabled by the server
+PASS day 2026-11-09: speed, attempts reset
+PASS Speed: hint limit (3) enforced
+PASS day 2026-11-10: accuracy, attempts reset
+PASS Perfect Accuracy: first mistake ends the attempt
+PASS day 2026-11-11: survival, attempts reset
+PASS all 7 rotating challenges seen in one week
+PASS opening the app alone does not count
+PASS server-verified solve → streak 1
+PASS streak 3 after three consecutive days
+PASS 3-day streak pays 50 XP once (no double reward)
+PASS missed day breaks the live streak
+PASS missed day is recoverable with a free token (48 h window)
+PASS recovery restores the streak (4) and consumes the token
+PASS same date cannot be recovered twice
+PASS token usage history shown
+PASS recovery only inside 48 h and only with a token
+PASS outside the 48 h window refused
+PASS 7-day streak → Beginner Badge
+PASS badge granted once
+PASS activity calendar (12 weeks)
+PASS flag chosen at sign-up (no lock yet)
+PASS first change recorded; next change = +365 days (server time)
+PASS second change before 365 days rejected
+PASS old profile endpoint enforces the same lock
+PASS logout/login does not reset the lock
+PASS refresh does not reset the lock
+PASS country list with flags (250)
+PASS still locked after 364 days
+PASS change allowed after 365 days, then locked again
+PASS flag history: initial + 2 changes
+
+116 passed, 0 failed

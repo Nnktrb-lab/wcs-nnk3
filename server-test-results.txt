@@ -1,0 +1,205 @@
+PASS health
+PASS register rejects short username
+PASS register rejects weak password
+PASS register rejects invalid country
+PASS register rejects invalid region
+PASS register returns token, Player ID, Friend ID
+PASS start rating 1200, Gold, K=40
+PASS recovery code issued once
+PASS Player IDs unique
+PASS username unique (case-insensitive)
+PASS password + recovery stored only as scrypt hashes
+PASS session tokens stored hashed
+PASS login (second device) returns same identity
+PASS wrong password rejected
+PASS unknown user gives same generic error
+PASS account locked after 5 failed logins
+PASS GET /me with token
+PASS GET /me without token is 401
+PASS account recovery with recovery code rotates code
+PASS recovery revokes old sessions
+PASS old recovery code no longer works
+PASS login with recovered password
+PASS update country/region
+PASS cloud progress backup (TURN secrets stripped)
+PASS friend request by Friend ID
+PASS cannot add self
+PASS unknown Friend ID 404
+PASS incoming request visible
+PASS accept friend request
+PASS already friends
+PASS reject friend request
+PASS remove friend
+PASS removal is mutual
+PASS websocket auth
+PASS friend online status pushed
+PASS websocket rejects invalid token
+PASS online list excludes self
+PASS Find Match requires a difficulty (no default)
+PASS Find Match requires a mode
+PASS Killer limited to supported difficulties
+PASS searching with ±100 window
+PASS no double matchmaking
+PASS different difficulty never matched
+PASS searching status pushed to friends
+PASS cancel search
+PASS same mode + difficulty matched
+PASS Ranked: filtered free text relayed
+PASS sender gets chat_ok delivery receipt
+PASS Ranked: abusive text blocked, error carries mid
+PASS both players get the same puzzle
+PASS solution not sent to clients before the end
+PASS shared puzzle valid + unique
+PASS moves before start rejected
+PASS cannot overwrite a given
+PASS server counts mistake 1
+PASS server counts mistake 2
+PASS server counts mistake 3
+PASS 3rd mistake loses
+PASS Elo 1200 vs 1200, K=40 → +20 / −20
+PASS rating persisted server-side
+PASS no rematch in ranked
+PASS match history with rating change
+PASS exactly one match row recorded
+PASS finishing the board wins, Elo uses expected score
+PASS live opponent progress pushed
+PASS surrender gives opponent the win
+PASS opponent told about disconnect
+PASS reload within grace resumes the same match + board
+PASS reconnect snapshot carries wrong-cell map
+PASS opponent told about reconnect
+PASS not returning within grace = forfeit loss
+PASS abandon counted
+PASS second device login replaces old socket (no self-match possible)
+PASS room needs a difficulty
+PASS create private room with code
+PASS invalid room code rejected
+PASS join room by code
+PASS third player rejected
+PASS only host changes difficulty
+PASS host difficulty change synced
+PASS emoji relayed
+PASS chat rate limit 1.5 s
+PASS lobby free text relayed with < > stripped (rendered as text)
+PASS free text with link blocked by server
+PASS free text with phone number blocked
+PASS abusive word blocked
+PASS free text over 80 chars blocked
+PASS unknown phrase rejected
+PASS WebRTC offer relayed to opponent only
+PASS invalid signalling dropped
+PASS countdown after both ready
+PASS free text works during match
+PASS sticker relayed
+PASS unknown sticker rejected
+PASS malformed sticker rejected
+PASS casual pause synced
+PASS input locked while paused
+PASS custom room result is Elo-rated (v4 fix: winner gains Elo)
+PASS rematch returns both to lobby
+PASS only accepted friends can be invited
+PASS friend receives invite
+PASS non-invited player cannot join invite room
+PASS invite accepted → shared lobby
+PASS invite decline notifies inviter
+PASS Killer match ships cages
+PASS Killer cages consistent with unique solution
+PASS Killer match finish validated by server
+PASS rating gap 300 not matched at ±100
+PASS pool size reported
+PASS window expands until 300 gap is matched
+PASS global leaderboard: ranked players sorted by Elo
+PASS leaderboard hides sensitive fields
+PASS current player position
+PASS country leaderboard filters
+PASS state/region leaderboard filters
+PASS search player
+PASS pagination
+PASS sort by wins
+PASS search is injection-safe
+PASS public leaderboard works without login (me:null)
+PASS ICE: STUN provided, TURN reported not configured
+PASS registration rate-limited per IP
+PASS public profile
+PASS avatar: preset p07 saved
+PASS avatar: unknown preset rejected
+PASS avatar: malformed preset rejected
+PASS avatar: requires login
+PASS avatar: visible on public leaderboard
+PASS avatar: JPEG upload saved
+PASS avatar: GET returns identical JPEG with nosniff
+PASS avatar: non-image bytes rejected (magic check)
+PASS avatar: SVG upload rejected
+PASS avatar: > 48 KB rejected
+PASS avatar: failed uploads keep previous picture
+PASS avatar: clear
+PASS avatar: blob deleted after clear
+PASS avatar: bad id 404
+PASS leaderboard: total = every registered player
+PASS leaderboard: players without Ranked games listed as unranked (no position)
+PASS leaderboard: ranked players first, unranked after
+PASS leaderboard: rankedScope + totalScope counts
+PASS leaderboard: friends scope = me + my friends
+PASS leaderboard: friend flag set
+PASS leaderboard: friends scope needs login
+PASS dm: unread count pushed on connect
+PASS find user by Player ID
+PASS find user by username
+PASS find user by Friend ID
+PASS find: self not returned
+PASS dm: send text without a lobby
+PASS dm: delivered live over WebSocket
+PASS dm: recipient unread badge updated
+PASS dm: resend with same client id is not duplicated
+PASS dm: link blocked
+PASS dm: phone number blocked
+PASS dm: abusive word blocked
+PASS dm: > 500 chars rejected
+PASS dm: long text allowed, HTML stripped
+PASS dm: sticker
+PASS dm: unknown sticker rejected
+PASS dm: emoji
+PASS dm: bad emoji rejected
+PASS dm: rate limited (min gap)
+PASS dm: cannot message yourself
+PASS dm: unknown user 404
+PASS dm: requires login
+PASS dm: conversation list with last message + unread
+PASS dm: thread oldest→newest, canSend
+PASS dm: head-to-head record between the two players
+PASS dm: older page with ?before=
+PASS dm: mark read
+PASS dm: sender notified (✓✓ read)
+PASS dm: readAt stored
+PASS dm: typing indicator relayed
+PASS voice: upload WebM/Opus clip
+PASS voice: recipient cannot fetch before it is sent
+PASS voice: sent as DM
+PASS voice: DM delivered live
+PASS voice: recipient downloads identical audio
+PASS voice: other users cannot fetch
+PASS voice: fetch requires login
+PASS voice: clip can be attached only once
+PASS voice: non-audio bytes rejected
+PASS voice: > 60 s rejected
+PASS voice: > 300 KB rejected
+PASS voice: Ogg and MP4/AAC (Safari) accepted
+PASS voice: cannot send someone else's clip
+PASS voice: voice message in 1vs1 room chat
+PASS voice: room opponent can play it
+PASS voice: room clip reuse rejected
+PASS dm privacy: friends only (geo unchanged)
+PASS dm privacy: invalid value rejected
+PASS dm privacy: non-friend blocked by policy
+PASS dm privacy: friend can still message
+PASS dm anti-spam: max 5 messages to a non-friend until they reply
+PASS dm anti-spam: conversation opens after a reply
+PASS block user
+PASS blocked user cannot message (generic reason)
+PASS blocker told to unblock first
+PASS block list
+PASS blocked conversation shows no unread
+PASS unblock restores messaging
+PASS dm messages persisted in SQLite
+
+203 passed, 0 failed
