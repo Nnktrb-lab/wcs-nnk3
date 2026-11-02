@@ -1,0 +1,56 @@
+PASS health reports version 4.0.0 and lounge count
+PASS register 7 users
+PASS create public lounge (max 5)
+PASS lounge code format
+PASS creator receives history with join event
+PASS lounge name filtered (links rejected)
+PASS failed create does not move host
+PASS public lounge listed for others
+PASS 5 members joined
+PASS 6th player rejected: lounge full
+PASS health counts lounges
+PASS text message reaches all members + sender ack
+PASS phone numbers filtered in lounge
+PASS abusive words filtered in lounge
+PASS lounge rate limit
+PASS sticker message
+PASS emoji message
+PASS invalid sticker rejected
+PASS non-member cannot post
+PASS voice upload
+PASS voice message reaches members
+PASS lounge member can play voice
+PASS non-member cannot play lounge voice
+PASS anonymous cannot play lounge voice
+PASS voice clip cannot be reused
+PASS cannot send someone else's clip
+PASS typing indicator to members
+PASS leave lounge
+PASS members see updated count after leave
+PASS leave system message
+PASS freed slot can be taken
+PASS new joiner does not see earlier messages (privacy)
+PASS only host can remove members
+PASS host removes member
+PASS removed member cannot rejoin
+PASS host leaving passes host to next member
+PASS create private lounge
+PASS private lounge hidden from non-friends
+PASS code alone is not enough for a private lounge
+PASS invite needs friendship
+PASS friendship G–E
+PASS private lounge visible to host's friends
+PASS friend receives lounge invite
+PASS invited friend joins private lounge
+PASS host changes name + visibility
+PASS reconnect within grace keeps lounge membership
+PASS history restored after reconnect
+PASS disconnected member removed after grace
+PASS user blocked by host cannot join
+PASS bad code rejected
+PASS unknown lounge
+PASS can create a game room while in a lounge
+PASS still in lounge after game room
+PASS empty lounge removed
+
+54 passed, 0 failed
