@@ -1,0 +1,27 @@
+PASS file:// → no server, offline mode
+PASS profile chip shows offline state
+PASS Easy classic puzzle generated offline
+PASS keyboard input works
+PASS undo works
+PASS pencil mark works
+PASS hint gives technique message
+PASS explain shows solver explanation
+PASS check runs
+PASS bot next step recorded in history
+PASS pause overlay
+PASS backtracking separate output
+PASS Killer solo puzzle with cages
+PASS view renders offline: learn
+PASS view renders offline: challenge
+PASS view renders offline: stats
+PASS view renders offline: settings
+PASS view renders offline: versus
+PASS view renders offline: rank
+PASS view renders offline: profile
+PASS v2.2 ranked record preserved & shown read-only
+PASS login disabled with honest note when no server
+PASS legacy data not deleted
+PASS component status table updated
+PASS no console errors offline
+
+25 passed, 0 failed

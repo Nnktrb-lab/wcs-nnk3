@@ -1,0 +1,126 @@
+PASS leaderboard view renders before login
+PASS register shows Player ID + Friend ID
+PASS recovery code shown once in modal
+PASS top chip shows username + 1200
+PASS Find Match disabled before mode/difficulty chosen
+PASS no default mode preselected
+PASS no default difficulty after picking mode
+PASS no default difficulty after picking mode
+PASS Find Match enabled after choosing
+PASS searching message shows ±100 window
+PASS Cancel Search visible while searching
+PASS cancel search stops searching
+PASS ranked match found + 3s countdown shown
+PASS nav to solo/learn tools locked during match
+PASS player A solved puzzle via board + pad
+PASS winner sees positive Elo delta (server)
+PASS loser sees negative Elo delta
+PASS A rating 1220 after first win (K=40, equal Elo)
+PASS no client-side mistake leakage in user
+PASS server rating unaffected by local tampering
+PASS tampered token/rating not accepted after reload
+PASS login again restores server rating 1220
+PASS B receives friend request live
+PASS friendship accepted on both sides
+PASS online friend shows enabled Invite
+PASS killer difficulties available for 1vs1
+PASS B receives private Killer invite
+PASS invite accepted → both in lobby
+PASS free-text toggle is clickable in server room
+PASS free-text toggle turns on
+PASS free-text toggle is clickable in server room
+PASS free-text toggle turns on
+PASS text box shown in casual lobby
+PASS free text received as plain text (no HTML)
+PASS link message blocked
+PASS casual Killer match started after both ready
+PASS text box usable during match
+PASS real keyboard typing works during match (board keys not hijacked)
+PASS free text delivered during match (Enter key)
+PASS sender sees ✓✓ after opponent receives
+PASS sticker tray opens
+PASS 16 stickers in tray
+PASS sticker delivered and drawn for opponent
+PASS tray closes after sending
+PASS blocked text not sent, kept in box for editing
+PASS killer cages rendered in 1vs1
+PASS emoji delivered to opponent
+PASS mic button shown in room chat (free text on)
+PASS voice message delivered in room chat during match
+PASS room voice message plays
+PASS surrender ends match for opponent
+PASS custom room match is Elo-rated (v4 fix, not +0)
+PASS MATCH RESULT shows previous/new/change
+PASS leaderboard lists both ranked players
+PASS current player position shown
+PASS country leaderboard MY
+PASS match history shows ranked + casual
+PASS cloud backup saved
+PASS avatar buttons enabled when signed in
+PASS 24 ready-made avatars shown
+PASS preset shown in sidebar + profile
+PASS other player sees preset avatar on leaderboard
+PASS gallery image shrunk to <= 48 KB
+PASS gallery upload saved + served by server
+PASS camera closed after capture
+PASS camera photo saved as avatar
+PASS other player sees uploaded photo
+PASS remove returns to initial
+PASS avatar persists after reload
+PASS 9 wallpapers + gallery option
+PASS wallpaper + dim saved to settings
+PASS wallpaper applied to chat
+PASS gallery wallpaper stored locally (≤ 400 KB)
+PASS custom wallpaper persists after reload
+PASS existing local progress intact after wallpaper change
+PASS 1vs1 history lists ranked AND custom-room (Elo) matches
+PASS Messages view opens for signed-in players
+PASS friend shown in Messages quick list
+PASS thread opens with friend, compose enabled (no lobby)
+PASS no room/lobby created for direct message
+PASS receiver gets unread badge live
+PASS sender sees ✓ (stored on server)
+PASS receiver opens thread and sees the message (mobile)
+PASS mobile shows thread full-screen with back button
+PASS sender sees ✓✓ after receiver reads
+PASS unread badge cleared after reading
+PASS typing indicator shown live
+PASS reply delivered live to open thread
+PASS phone number blocked by server filter (shown as failed)
+PASS blocked message never reaches receiver
+PASS sticker in direct message delivered
+PASS emoji in direct message delivered
+PASS mic button shown when text box empty
+PASS recording starts only after tapping mic
+PASS voice message delivered to friend
+PASS voice duration recorded (~2 s)
+PASS voice message plays for receiver (authenticated fetch)
+PASS sender sees own voice bubble
+PASS voice clip not downloadable without login
+PASS other signed-in player cannot fetch someone else's voice clip
+PASS newly registered player (0 ranked games) is listed on the leaderboard as unranked
+PASS leaderboard shows ranked + registered counts
+PASS leaderboard row opens player card
+PASS Message button on player card opens a direct chat with a non-friend
+PASS non-friend message arrives in conversation list
+PASS friends leaderboard = me + friends only
+PASS blocking shows reason + hides compose
+PASS blocked sender cannot deliver
+PASS no console errors (third player)
+PASS EN language persisted
+PASS no horizontal overflow desktop/play
+PASS no horizontal overflow desktop/versus
+PASS no horizontal overflow desktop/rank
+PASS no horizontal overflow desktop/chat
+PASS no horizontal overflow desktop/profile
+PASS no horizontal overflow desktop/settings
+PASS no horizontal overflow mobile/play
+PASS no horizontal overflow mobile/versus
+PASS no horizontal overflow mobile/rank
+PASS no horizontal overflow mobile/chat
+PASS no horizontal overflow mobile/profile
+PASS no horizontal overflow mobile/settings
+PASS no console errors desktop
+PASS no console errors mobile
+
+124 passed, 0 failed
