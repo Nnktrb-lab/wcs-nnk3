@@ -1,0 +1,115 @@
+PASS health reports version 4.4.0
+PASS schema version 5
+PASS table player_bans exists
+PASS table player_reports exists
+PASS table coin_tx exists
+PASS table owned_borders exists
+PASS configured admin is promoted at registration
+PASS player gets 403 on all 8 admin endpoints
+PASS anonymous gets 401 on all admin endpoints
+PASS denied admin attempts are logged to anti-cheat
+PASS no ban was created by unauthorised calls
+PASS player can report another player
+PASS duplicate open report blocked
+PASS cannot report self
+PASS report category validated
+PASS admin sees open report
+PASS admin search by username
+PASS admin search by Player ID
+PASS admin player detail with reports
+PASS invalid preset rejected
+PASS invalid reason rejected
+PASS custom reason needs text
+PASS custom duration 0 rejected
+PASS custom duration > 365 days rejected
+PASS admin cannot ban self
+PASS ranked 1v1 started between cheater and honest player
+PASS BAN 1 day applied
+PASS 1-day ban: start = server now, end = start + 24h
+PASS ban stores reason, admin, username, Player ID
+PASS live match voided for both players with correct reason
+PASS banned player receives live ban notice
+PASS ban does not change Elo, Coins or games of either player
+PASS match row recorded as void/ban
+PASS no Elo transaction written for the voided match
+PASS linked report auto-resolved by the ban
+PASS second overlapping ban refused
+PASS banned: Ranked 1v1 matchmaking blocked
+PASS banned: custom room create blocked
+PASS banned: joining a room blocked
+PASS banned: WCS queue blocked
+PASS banned: WCS knockout ready blocked
+PASS banned: rematch blocked
+PASS banned: daily tournament start blocked (HTTP) with end date
+PASS banned: WCS entry blocked (HTTP)
+PASS banned player can still practise solo (not competitive)
+PASS player can read own ban status
+PASS banned player can still log in and sees ban in profile
+PASS unbanned players still match normally
+PASS BAN 3 days applied
+PASS player searching for a match is removed from the queue when banned
+PASS BAN 7 days (coin_manip)
+PASS BAN 14 days (bug_abuse)
+PASS BAN 30 days (rules)
+PASS custom duration 2 days 6 hours with custom reason
+PASS custom duration 1 hour
+PASS active ban list (7)
+PASS ban list search by username
+PASS 1-hour custom ban is Expired after 1 hour
+PASS expired player has no active ban
+PASS 1-day ban expired automatically after 24h
+PASS after expiry the player can play Ranked again
+PASS normal match after expiry is rated again
+PASS ranked win result message reports +30 coins
+PASS 3-day ban still active after 1 day
+PASS UNBAN needs a note
+PASS player cannot UNBAN
+PASS UNBAN revokes with note and admin
+PASS unbanned player has access again
+PASS cannot UNBAN twice
+PASS cannot UNBAN an expired ban
+PASS revoked filter
+PASS full ban history (all statuses)
+PASS player detail shows ban history and voided match
+PASS audit: ban rows with admin ID, player ID, action, reason, time, duration, before/after
+PASS audit: unban row with note and before/after status
+PASS audit search by player includes voided match
+PASS audit rows are persisted in SQLite
+PASS welcome coins granted once
+PASS ranked win grants 30 coins (server side)
+PASS instant leave (<30s) earns no coins (anti-farming)
+PASS welcome bonus not duplicated
+PASS voided match gives no coins
+PASS no duplicate coin rewards in ledger
+PASS shop lists Legendary 2 and 5 new Mythic borders
+PASS rarities correct (Legendary 2 = legendary, new = mythic)
+PASS reward borders kept (Founder, Veteran, MR Champion, Legend, Finalist, Champion)
+PASS early account owns Founder as a reward
+PASS Legendary 2 is NOT given to everyone
+PASS cannot buy Legendary 2 without enough coins
+PASS reward-only border cannot be bought
+PASS cannot equip a border you do not own
+PASS parallel double-buy: exactly one purchase succeeds
+PASS bronze costs 150 coins, charged once
+PASS buy legend2
+PASS buy nebula
+PASS buy thunder
+PASS buy dragon
+PASS buy phantom
+PASS buy celestial
+PASS equip Legendary 2
+PASS equipped border persists after re-login
+PASS public profile shows border
+PASS leaderboard rows carry border
+PASS equip nebula
+PASS equip thunder
+PASS equip dragon
+PASS equip phantom
+PASS equip celestial
+PASS shop shows owned + equipped
+PASS every purchase written to coin history
+PASS active bans survive a server restart
+PASS ban still enforced after restart
+PASS equipped border survives restart
+
+113 passed, 0 failed

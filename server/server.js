@@ -17,7 +17,7 @@ const { Worker } = require('worker_threads');
 const { WebSocketServer } = require('ws');
 const DB = require('./db');
 
-const VERSION = '4.0.0';
+const VERSION = '4.4.0';
 const PORT = +process.env.PORT || 8000;
 const ROOT = path.join(__dirname, '..');
 const SITE = path.join(ROOT, 'site');
@@ -33,6 +33,7 @@ const TEST_HOOKS = process.env.SLA_TEST_HOOKS === '1';
 let CLOCK_OFF = 0;
 const now = () => Date.now() + CLOCK_OFF;
 let WCS = null; // WCS module (server/wcs.js), wired after the core is defined
+let V44 = null; // v4.4 module (server/v44.js): bans, player reports, audit, coins, border shop
 const DIFFS = ['easy', 'medium', 'hard', 'master', 'extreme'];
 const KILLER_DIFFS = ['medium', 'hard'];
 const MODES = ['classic', 'killer'];
@@ -114,13 +115,13 @@ function pubUser(u) {
   if (!u) return null;
   return { id: u.id, username: u.username, playerId: u.player_id, country: u.country || null, region: u.region || null,
     rating: u.rating, tier: tierOf(u.rating), games: u.games, wins: u.wins, losses: u.losses, draws: u.draws, peak: u.peak, avatar: u.avatar || null,
-    flag: u.country ? flagEmoji(u.country) : null, titles: u.wcs_titles || 0, xp: u.xp || 0, streak: u.streak_cur || 0 };
+    flag: u.country ? flagEmoji(u.country) : null, titles: u.wcs_titles || 0, xp: u.xp || 0, streak: u.streak_cur || 0, border: u.border || 'none' };
 }
 function privUser(u) {
   const p = pubUser(u);
   return Object.assign(p, { friendCode: u.friend_code, casualGames: u.casual_games, casualWins: u.casual_wins, abandons: u.abandons,
     createdAt: u.created_at, k: kFactor(u.games), progressAt: u.progress_at || null, dmPolicy: u.dm_policy === 'friends' ? 'friends' : 'all',
-    role: u.role === 'admin' ? 'admin' : 'player', streakBest: u.streak_best || 0, lastFlagChange: u.last_flag_change || null, nextFlagChange: u.next_flag_change || null });
+    role: u.role === 'admin' ? 'admin' : 'player', coins: u.coins || 0, banned: V44 ? V44.publicBan(V44.banOf(u.id)) : null, streakBest: u.streak_best || 0, lastFlagChange: u.last_flag_change || null, nextFlagChange: u.next_flag_change || null });
 }
 function newSession(uid) {
   const tok = crypto.randomBytes(32).toString('base64url');
@@ -227,6 +228,7 @@ route('POST', '/api/auth/register', false, async ({ body, ip }) => {
   let id;
   try { id = Q.insUser.run(row).lastInsertRowid; } catch (e) { if (String(e.message).includes('UNIQUE')) return R(409, { error: 'username_taken' }); throw e; }
   if (geo.country) { db.prepare('UPDATE users SET country_flag = ? WHERE id = ?').run(flagEmoji(geo.country), id); db.prepare("INSERT INTO flag_change_history (user_id, old_code, new_code, kind, changed_at) VALUES (?, NULL, ?, 'initial', ?)").run(id, geo.country, now()); }
+  try { if (WCS) WCS.loadAdmins(); if (V44) V44.welcome(id); } catch (e) { console.error('v44 register hook', e.message); }
   const u = Q.userById.get(id);
   return { token: newSession(u.id), user: privUser(u), recoveryCode: fmtRecovery(recoveryRaw) };
 });
@@ -719,7 +721,7 @@ function generate(mode, diff, opts) {
 }
 
 /* ---------- rooms ---------- */
-function miniUser(uid) { const c = clients.get(uid); const u = c ? c.user : Q.userById.get(uid); return u ? { uid: u.id, username: u.username, playerId: u.player_id, rating: u.rating, tier: tierOf(u.rating), country: u.country, games: u.games, avatar: u.avatar || null } : null; }
+function miniUser(uid) { const c = clients.get(uid); const u = c ? c.user : Q.userById.get(uid); return u ? { uid: u.id, username: u.username, playerId: u.player_id, rating: u.rating, tier: tierOf(u.rating), country: u.country, games: u.games, avatar: u.avatar || null, border: u.border || 'none' } : null; }
 function newRoom(opts) {
   let code; do { code = roomCode(); } while (rooms.has(code));
   const room = { code, ranked: !!opts.ranked, kind: opts.kind || (opts.ranked ? 'ranked' : 'custom'), season: opts.season || null, ko: opts.ko || null, mode: opts.mode, diff: opts.diff, host: opts.host, players: [opts.host], ready: {}, mic: {}, phase: 'lobby', invited: opts.invited || null, match: null, rematch: {}, createdAt: now(), touched: now() };
@@ -753,6 +755,9 @@ function customRatedLeft(a, b) { return Math.max(0, CUSTOM_PAIR_CAP - pairRatedQ
 
 function startMatch(room) {
   if (room.players.length !== 2 || room.phase !== 'lobby') return;
+  /* v4.4: a banned player can never start a competitive match, whatever path led here */
+  const banned = V44 ? room.players.filter((p) => V44.banOf(p)) : [];
+  if (banned.length) { banned.forEach((p) => V44.gate(p)); room.players.forEach((p) => { if (!banned.includes(p)) sendTo(p, { t: 'match_void', why: 'opp_banned' }); }); closeRoom(room, 'void_ban'); return; }
   room.phase = 'generating'; broadcastRoom(room);
   const gen = room.genSeq = (room.genSeq || 0) + 1;
   const strict = room.kind === 'wcs_q' || room.kind === 'wcs_ko';
@@ -808,7 +813,8 @@ const finishTx = db.transaction((room, winner, reason) => {
   db.prepare(`UPDATE matches SET result = ?, reason = ?, p1_before = ?, p1_after = ?, p2_before = ?, p2_after = ?, p1_k = ?, p2_k = ?, p1_mistakes = ?, p2_mistakes = ?, ended_at = ?, duration_ms = ? WHERE id = ?`)
     .run(res, reason, ua.rating, after[a], ub.rating, after[b], k[a], k[b], M.mistakes[a], M.mistakes[b], now(), elapsed(M), M.mid);
   if (M.rated && reason === 'surrender' && elapsed(M) < 30000) WCS.acLog(res === 'p1' ? b : a, 'quick_surrender', { mid: M.mid, ms: elapsed(M), kind: room.kind }, M.mid);
-  return { res, before: { [a]: ua.rating, [b]: ub.rating }, after, k, wcs };
+  const coins = V44 ? V44.matchCoins(room, M, res, reason, elapsed(M)) : {};
+  return { res, before: { [a]: ua.rating, [b]: ub.rating }, after, k, wcs, coins };
 });
 function endMatch(room, winner, reason) {
   const M = room.match; if (!M || M.over) return;
@@ -823,6 +829,7 @@ function endMatch(room, winner, reason) {
     sendTo(uid, { t: 'result', mid: M.mid, winner: winner || null, draw: !winner, reason, elapsed: elapsed(M), ranked: room.ranked, rated: !!M.rated, kind: room.kind,
       wcs: out.wcs ? WCS.resultFor(out.wcs, uid) : null,
       elo: M.rated ? { before: out.before[uid], after: out.after[uid], delta: out.after[uid] - out.before[uid], k: out.k[uid], oppBefore: out.before[opp], oppAfter: out.after[opp] } : null,
+      coins: out.coins && out.coins[uid] != null ? out.coins[uid] : null,
       user: u ? privUser(u) : null, solution: M.solution.join('') });
   });
   broadcastRoom(room);
@@ -1066,6 +1073,7 @@ function cleanChat(s, max) {
   return s;
 }
 function err(uid, code) { sendTo(uid, { t: 'error', code }); }
+const BAN_GATED = new Set(['mm_find', 'room_create', 'room_join', 'room_ready', 'invite', 'invite_reply', 'rematch', 'wcs_find', 'wcs_ready']);
 function onMessage(c, raw) {
   const uid = c.user.id;
   if (limited('ws:' + uid, 150, 5000)) { err(uid, 'rate'); return; }
@@ -1073,6 +1081,8 @@ function onMessage(c, raw) {
   if (!m || typeof m !== 'object' || Array.isArray(m) || typeof m.t !== 'string') return;
   const room = roomOf(uid);
   if (room) room.touched = now();
+  /* v4.4: server-side ban enforcement on every competitive action (UI state is never trusted) */
+  if (V44 && BAN_GATED.has(m.t) && !(m.t === 'invite_reply' && m.accept !== true) && V44.gate(uid)) { if (m.t === 'invite_reply' && typeof m.code === 'string') { const r = rooms.get(m.code); if (r && r.invited === uid) { sendTo(r.host, { t: 'invite_declined', username: c.user.username }); closeRoom(r, 'declined'); } } return; }
   switch (m.t) {
     case 'ping': sendTo(uid, { t: 'pong', ts: now() }); return;
     case 'mm_find': {
@@ -1121,7 +1131,7 @@ function onMessage(c, raw) {
       const fid = Number(m.uid);
       if (!Number.isInteger(fid) || !isFriend(uid, fid)) return err(uid, 'not_friend');
       if (room || queue.has(uid)) return err(uid, 'busy');
-      if (!clients.has(fid) || userRoom.has(fid) || queue.has(fid)) return err(uid, 'friend_busy');
+      if (!clients.has(fid) || userRoom.has(fid) || queue.has(fid) || (V44 && V44.banOf(fid))) return err(uid, 'friend_busy');
       if (limited('inv:' + uid, 6, 60000)) return err(uid, 'rate');
       const mode = MODES.includes(m.mode) ? m.mode : 'classic';
       const diff = (mode === 'killer' ? KILLER_DIFFS : DIFFS).includes(m.diff) ? m.diff : null;
@@ -1292,7 +1302,12 @@ setInterval(() => { wss.clients.forEach((ws) => { if (!ws.isAlive) return ws.ter
 
 /* ---------- v4 WCS – World Championship Sudoku ---------- */
 WCS = require('./wcs')({ db, Q, now, route, R, sendTo, clients, generate, newRoom, broadcastRoom, startMatch, userRoom, queue, rooms, miniUser, pubUser, privUser,
-  refreshClientUser, limited, err, presence, validGeo, flagEmoji, cleanChat, roomOf, GEO, TEST_HOOKS, setClock: (ms) => { CLOCK_OFF = ms; }, getClock: () => CLOCK_OFF });
+  refreshClientUser, limited, err, presence, validGeo, flagEmoji, cleanChat, roomOf, GEO, TEST_HOOKS, setClock: (ms) => { CLOCK_OFF = ms; }, getClock: () => CLOCK_OFF,
+  banOf: (uid) => (V44 ? V44.banOf(uid) : null), gate: (uid) => (V44 ? V44.gate(uid) : false), coins: (uid, n, why, ref) => (V44 ? V44.grantCoins(uid, n, why, ref) : 0) });
+
+/* ---------- v4.4 – bans, player reports, audit, coins, border shop ---------- */
+V44 = require('./v44').init({ db, Q, now, route, R, sendTo, clients, queue, rooms, roomOf, closeRoom, presence, privUser, refreshClientUser, limited,
+  getWCS: () => WCS, promoteAdmins: () => WCS.loadAdmins() });
 
 /* ---------- backups ---------- */
 setTimeout(() => { DB.backup(db).catch((e) => console.error('backup', e.message)); }, 60000).unref();

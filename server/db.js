@@ -5,7 +5,7 @@ const path = require('path');
 const fs = require('fs');
 const Database = require('better-sqlite3');
 
-const SCHEMA_VERSION = 4;
+const SCHEMA_VERSION = 5;
 
 function open(file) {
   const dbFile = file || process.env.SLA_DB || path.join(__dirname, '..', 'data.db');
@@ -220,6 +220,37 @@ function open(file) {
       status TEXT NOT NULL DEFAULT 'open', admin_note TEXT, created_at INTEGER NOT NULL, resolved_at INTEGER, resolved_by INTEGER);
     CREATE TABLE IF NOT EXISTS admin_audit (
       id INTEGER PRIMARY KEY AUTOINCREMENT, admin_id INTEGER NOT NULL, action TEXT NOT NULL, detail TEXT, created_at INTEGER NOT NULL);
+  `);
+  /* v5 / WCS v4.4 (additive only): coins + shop + borders, player bans, player reports, richer audit */
+  const cols5 = db.prepare('PRAGMA table_info(users)').all().map((c) => c.name);
+  if (!cols5.includes('coins')) db.exec('ALTER TABLE users ADD COLUMN coins INTEGER NOT NULL DEFAULT 0');
+  if (!cols5.includes('border')) db.exec("ALTER TABLE users ADD COLUMN border TEXT NOT NULL DEFAULT 'none'");
+  const colsA = db.prepare('PRAGMA table_info(admin_audit)').all().map((c) => c.name);
+  if (!colsA.includes('target_id')) db.exec('ALTER TABLE admin_audit ADD COLUMN target_id INTEGER');
+  db.exec(`
+    CREATE INDEX IF NOT EXISTS ix_audit_target ON admin_audit(target_id, created_at);
+    CREATE INDEX IF NOT EXISTS ix_audit_action ON admin_audit(action, created_at);
+    CREATE TABLE IF NOT EXISTS coin_tx (
+      id INTEGER PRIMARY KEY AUTOINCREMENT, user_id INTEGER NOT NULL REFERENCES users(id), amount INTEGER NOT NULL,
+      balance INTEGER NOT NULL, reason TEXT NOT NULL, ref TEXT NOT NULL, day TEXT, created_at INTEGER NOT NULL,
+      UNIQUE(user_id, reason, ref));
+    CREATE INDEX IF NOT EXISTS ix_coin_user ON coin_tx(user_id, created_at DESC);
+    CREATE TABLE IF NOT EXISTS owned_borders (
+      user_id INTEGER NOT NULL REFERENCES users(id), border_id TEXT NOT NULL, source TEXT NOT NULL, price INTEGER NOT NULL DEFAULT 0,
+      acquired_at INTEGER NOT NULL, PRIMARY KEY (user_id, border_id));
+    CREATE TABLE IF NOT EXISTS player_bans (
+      id INTEGER PRIMARY KEY AUTOINCREMENT, user_id INTEGER NOT NULL REFERENCES users(id),
+      reason_code TEXT NOT NULL, reason_text TEXT, starts_at INTEGER NOT NULL, ends_at INTEGER NOT NULL, duration_ms INTEGER NOT NULL,
+      admin_id INTEGER NOT NULL REFERENCES users(id), status TEXT NOT NULL DEFAULT 'active',
+      revoked_at INTEGER, revoked_by INTEGER, revoke_note TEXT, report_id INTEGER, created_at INTEGER NOT NULL);
+    CREATE INDEX IF NOT EXISTS ix_bans_user ON player_bans(user_id, status, ends_at);
+    CREATE INDEX IF NOT EXISTS ix_bans_status ON player_bans(status, ends_at);
+    CREATE TABLE IF NOT EXISTS player_reports (
+      id INTEGER PRIMARY KEY AUTOINCREMENT, reporter_id INTEGER NOT NULL REFERENCES users(id), target_id INTEGER NOT NULL REFERENCES users(id),
+      category TEXT NOT NULL, body TEXT, match_id INTEGER, status TEXT NOT NULL DEFAULT 'open',
+      admin_note TEXT, resolved_by INTEGER, resolved_at INTEGER, created_at INTEGER NOT NULL);
+    CREATE INDEX IF NOT EXISTS ix_reports_status ON player_reports(status, created_at);
+    CREATE INDEX IF NOT EXISTS ix_reports_target ON player_reports(target_id, created_at);
   `);
   const cur = db.prepare('SELECT v FROM schema_meta WHERE k = ?').get('version');
   if (!cur) db.prepare('INSERT INTO schema_meta (k, v) VALUES (?, ?)').run('version', String(SCHEMA_VERSION));

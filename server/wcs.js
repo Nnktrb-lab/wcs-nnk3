@@ -18,6 +18,9 @@ const path = require('path');
 module.exports = function initWCS(ctx) {
   const { db, Q, now, route, R, sendTo, clients, generate, newRoom, broadcastRoom, startMatch, userRoom, queue, miniUser, pubUser, privUser,
     refreshClientUser, limited, err, presence, flagEmoji, cleanChat, GEO, TEST_HOOKS } = ctx;
+  /* v4.4: server-side ban check (player_bans) for every competitive WCS entry point */
+  const banOf = (uid) => (ctx.banOf ? ctx.banOf(uid) : null);
+  const banBody = (uid) => { const b = banOf(uid); return b ? { error: 'banned', ban: { reasonCode: b.reason_code, reasonText: b.reason_text || '', startsAt: b.starts_at, endsAt: b.ends_at, serverTime: now() } } : null; };
   const DAY = 864e5, HOUR = 3600e3, MYT = 8 * HOUR, YEAR_LOCK = 365 * DAY;
 
   /* ---------------- time helpers (Asia/Kuala_Lumpur, UTC+8, no DST) ---------------- */
@@ -42,7 +45,7 @@ module.exports = function initWCS(ctx) {
   function acLog(uid, kind, detail, ref) {
     try { insAc.run(uid || null, kind, typeof detail === 'string' ? detail : JSON.stringify(detail || {}), ref == null ? null : String(ref), now()); } catch (e) { console.error('acLog', e.message); }
   }
-  const audit = (adminId, action, detail) => db.prepare('INSERT INTO admin_audit (admin_id, action, detail, created_at) VALUES (?, ?, ?, ?)').run(adminId, action, JSON.stringify(detail || {}), now());
+  const audit = (adminId, action, detail, targetId) => db.prepare('INSERT INTO admin_audit (admin_id, action, detail, created_at, target_id) VALUES (?, ?, ?, ?, ?)').run(adminId, action, JSON.stringify(detail || {}), now(), targetId == null ? null : targetId);
 
   /* ---------------- admin role (configuration, never from the client) ---------------- */
   function loadAdmins() {
@@ -261,6 +264,7 @@ module.exports = function initWCS(ctx) {
         const d = db.prepare('SELECT events_json FROM daily_tournaments WHERE day = ?').get(run.day), ev = JSON.parse(d.events_json);
         const mult = ev.includes('double_xp') ? 2 : 1;
         let x = grantXp(uid, (50 + Math.floor(sc.score / 20)) * mult, 'daily', run.day); if (x) rewards.push({ xp: x, why: 'daily' });
+        if (ctx.coins) { const cn = ctx.coins(uid, 25, 'daily', run.day); if (cn) rewards.push({ coins: cn, why: 'daily_coins' }); }
         if (ev.includes('perfect_event') && sc.perfect) { x = grantXp(uid, 100 * mult, 'daily_perfect', run.day); if (x) rewards.push({ xp: x, why: 'perfect_event' }); }
         if (rules.mysteryXp) { x = grantXp(uid, rules.mysteryXp * mult, 'daily_mystery', run.day); if (x) rewards.push({ xp: x, why: 'mystery_bonus' }); }
         if (grantBadge(uid, 'daily_debut', run.day)) rewards.push({ badge: 'daily_debut' });
@@ -285,6 +289,7 @@ module.exports = function initWCS(ctx) {
     return runById.get(id);
   }
   route('POST', '/api/daily/start', true, async ({ user }) => {
+    { const bb = banBody(user.id); if (bb) return R(403, bb); }
     if (limited('dstart:' + user.id, 12, 600000)) return R(429, { error: 'rate_limited' });
     const day = dayKey(), D = await ensureDaily(day), rules = JSON.parse(D.rules_json);
     const runs = db.prepare("SELECT * FROM solo_runs WHERE user_id = ? AND kind = 'daily' AND day = ? ORDER BY n").all(user.id, day).map(expireIfNeeded);
@@ -313,6 +318,7 @@ module.exports = function initWCS(ctx) {
     let r = ownRun(user, params.id); if (!r) return R(404, { error: 'not_found' });
     if (limited('runmv:' + user.id, 12, 1000)) { if (!limited('runmvlog:' + user.id, 1, 60000)) acLog(user.id, 'move_flood', { run: r.id }, r.id); return R(429, { error: 'rate_limited' }); }
     r = expireIfNeeded(r); if (r.status !== 'active') return R(409, Object.assign({ error: 'run_over' }, runView(r, user.id)));
+    if (r.kind === 'daily') { const bb = banBody(user.id); if (bb) return R(403, bb); }
     const i = body.i, v = body.v;
     if (!Number.isInteger(i) || i < 0 || i > 80 || !Number.isInteger(v) || v < 0 || v > 9) return R(400, { error: 'bad_move' });
     if (r.puzzle[i] !== '0') return R(400, { error: 'given' });
@@ -622,6 +628,7 @@ module.exports = function initWCS(ctx) {
       lastChampion: last ? { season: last.season_id, seasonName: (seasonById(last.season_id) || {}).name, user: mini(last.user_id), runnerUp: mini(last.runner_up), at: last.decided_at } : null };
   });
   route('POST', '/api/wcs/enter', true, ({ user }) => {
+    { const bb = banBody(user.id); if (bb) return R(403, bb); }
     const s = season(); if (!s || s.status !== 'qualification' || now() >= s.qual_end) return R(409, { error: 'wcs_not_qualification' });
     const el = eligible(user);
     if (!el.ok) { acLog(user.id, 'wcs_ineligible_attempt', { rating: el.rating, need: el.min, via: 'enter' }); return R(403, { error: 'wcs_not_eligible', rating: el.rating, need: el.need, minElo: el.min }); }
@@ -707,6 +714,7 @@ module.exports = function initWCS(ctx) {
   function onWs(c, m, room) {
     const u = c.user, uid = u.id;
     if (m.t === 'wcs_cancel') { wq.delete(uid); sendTo(uid, { t: 'wcs_queue', searching: false }); return; }
+    if (m.t === 'wcs_find' || m.t === 'wcs_ready') { if (ctx.gate && ctx.gate(uid)) return; }
     if (m.t === 'wcs_find') {
       if (room || wq.has(uid)) return err(uid, 'busy');
       const why = canQueue(u); if (why) return err(uid, why);
@@ -727,6 +735,6 @@ module.exports = function initWCS(ctx) {
   }
   setInterval(tick, 2000).unref();
 
-  return { changeFlag, activity, acLog, onMatchFinished, resultFor, afterFinish, koLive, onWs, onClosed: (uid) => wq.delete(uid), queued: (uid) => wq.has(uid),
+  return { loadAdmins, changeFlag, activity, acLog, onMatchFinished, resultFor, afterFinish, koLive, onWs, onClosed: (uid) => wq.delete(uid), queued: (uid) => wq.has(uid),
     _t: { dayKey, addDays, dayStart, dailyPlan, bracketOrder, scoreRun, startKnockout, season, tick, streakOf } };
 };

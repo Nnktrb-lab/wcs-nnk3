@@ -1,5 +1,5 @@
-PASS server version 4.0.0
-PASS schema version 4
+FAIL server version 4.0.0
+FAIL schema version 4
 PASS custom room countdown says Elo-rated
 PASS custom WIN: 1200 → 1220 (+20, K=40, E=0.5)
 PASS custom LOSE: 1200 → 1180 (−20)
@@ -61,25 +61,22 @@ PASS runner-up: Final, no titles
 PASS next season (Season 2) opens automatically
 PASS title count on the public profile
 PASS every championship match in the database is Extreme
-PASS today's challenge follows the weekday schedule (survival)
+PASS today's challenge follows the weekday schedule (mystery)
 PASS weekly schedule Mon–Sun
 PASS refresh/second start resumes the same attempt
 PASS solution never sent while the attempt is active
 PASS every player gets the same puzzle today
 PASS server counts mistakes
 PASS maximum 3 attempts per day (server)
-PASS clean solve on a lives day
-PASS limited lives: attempt fails when lives run out
+PASS scores: clean solve beats a solve with mistakes
+PASS daily leaderboard ordered by best valid score
+PASS daily XP awarded
+PASS daily XP paid once
 PASS impossibly fast solve flagged, hidden from leaderboard
 PASS anti-cheat log written
 PASS admin review (dismiss) restores the result
 PASS player can file an appeal
 PASS admin resolves the appeal
-PASS day 2026-11-05: technique, attempts reset
-PASS technique: hints disabled by the server
-PASS Technique challenge names its technique: box_line
-PASS day 2026-11-06: mystery, attempts reset
-PASS Mystery objective hidden before playing
 PASS day 2026-11-07: extreme, attempts reset
 PASS Saturday puzzle graded Extreme
 PASS day 2026-11-08: ultimate, attempts reset
@@ -89,6 +86,11 @@ PASS Speed: hint limit (3) enforced
 PASS day 2026-11-10: accuracy, attempts reset
 PASS Perfect Accuracy: first mistake ends the attempt
 PASS day 2026-11-11: survival, attempts reset
+PASS day 2026-11-12: technique, attempts reset
+PASS technique: hints disabled by the server
+PASS Technique challenge names its technique: pointing_pair
+PASS day 2026-11-13: mystery, attempts reset
+PASS Mystery objective hidden before playing
 PASS all 7 rotating challenges seen in one week
 PASS opening the app alone does not count
 PASS server-verified solve → streak 1
@@ -115,4 +117,4 @@ PASS still locked after 364 days
 PASS change allowed after 365 days, then locked again
 PASS flag history: initial + 2 changes
 
-116 passed, 0 failed
+116 passed, 2 failed
