@@ -45,7 +45,7 @@ async function main() {
   for (let i = 0; i < 50; i++) { try { await fetch(BASE + '/api/health'); break; } catch (e) { await sleep(100); } }
   const socks = [];
   try {
-    const h = await api('GET', '/api/health'); ok(h.body.version === '4.4.0' && h.body.lounges === 0, 'health reports version 4.4.0 and lounge count', h.body);
+    const h = await api('GET', '/api/health'); ok(h.body.version === '4.4.1' && h.body.lounges === 0, 'health reports version 4.4.1 and lounge count', h.body);
     const U = [];
     for (const n of ['lp_host', 'lp_b', 'lp_c', 'lp_d', 'lp_e', 'lp_f', 'lp_g']) { const r = await api('POST', '/api/auth/register', { username: n, password: n + 'pass123' }); U.push(r.body); }
     ok(U.every((u) => u && u.token), 'register 7 users');

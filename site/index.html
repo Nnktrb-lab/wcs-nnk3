@@ -921,6 +921,7 @@ table.lb td.elo{font-family:var(--mono);font-weight:700}
       <button data-view="stats" class="nav-sec"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg><span data-i18n="nav_stats"></span></button>
       <button data-view="versus"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="8" cy="8" r="3"/><circle cx="16" cy="8" r="3"/><path d="M2 20c0-3 2.7-5 6-5s6 2 6 5M14 15.3c.6-.2 1.3-.3 2-.3 3.3 0 6 2 6 5"/></svg><span data-i18n="nav_versus"></span></button>
       <button data-view="chat" class="nav-chat"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h16v11H9l-5 4z"/><path d="M8 9.5h8M8 12.5h5"/></svg><span data-i18n="nav_chat"></span><i class="nbadge hidden" id="navDmBadge"></i></button>
+      <button data-view="mr" class="nav-sec nav-mr"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="6" cy="7" r="2.5"/><circle cx="18" cy="7" r="2.5"/><circle cx="6" cy="16" r="2.5"/><circle cx="18" cy="16" r="2.5"/><path d="M10 11.5h4M12 9.5v4"/></svg><span data-i18n="nav_mr"></span></button>
       <button data-view="rank"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 21h8M12 17v4"/><path d="M6 3h12v6a6 6 0 01-12 0z"/><path d="M10 8l2-2v6"/></svg><span data-i18n="nav_rank"></span></button>
       <button data-view="shop" class="nav-sec nav-shop"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="4.5"/><path d="M12 1.8v2.4M12 19.8v2.4M1.8 12h2.4M19.8 12h2.4"/></svg><span data-i18n="nav_shop"></span></button>
       <button data-view="profile" class="nav-sec"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-6 8-6s8 2 8 6"/></svg><span data-i18n="nav_profile"></span></button>
@@ -1277,6 +1278,7 @@ table.lb td.elo{font-family:var(--mono);font-weight:700}
 </section>
 
 <!-- ================= SETTINGS ================= -->
+<section class="view" id="view-mr"><div id="mrRoot"></div></section>
 <section class="view" id="view-shop"><div id="shopRoot"></div></section>
 <section class="view" id="view-settings">
   <div class="set-grid">
@@ -1496,7 +1498,7 @@ table.lb td.elo{font-family:var(--mono);font-weight:700}
     </div>
   </div>
 </section>
-<div class="footer">WCS – World Championship Sudoku · Only the Best Reach the Final. · v4.0 · HTML5 / CSS3 / Vanilla JavaScript · Offline-first + Node.js server</div>
+<div class="footer">WCS – World Championship Sudoku · Only the Best Reach the Final. · v4.4.1 · Data disimpan di pelayan (Node.js + SQLite)</div>
 </main>
 </div>
 <div class="toasts" id="toasts"></div>
@@ -3441,7 +3443,7 @@ var APP = (function () {
     if (currentView === 'chat' && v !== 'chat' && window.DM) DM.onHide();
     currentView = v;
     document.querySelectorAll('.view').forEach(function (s) { s.classList.toggle('active', s.id === 'view-' + v); });
-    document.querySelectorAll('#nav button').forEach(function (b) { b.classList.toggle('active', b.getAttribute('data-view') === v || (b.hasAttribute('data-more') && ['learn', 'challenge', 'stats', 'shop', 'profile', 'settings'].indexOf(v) >= 0)); });
+    document.querySelectorAll('#nav button').forEach(function (b) { b.classList.toggle('active', b.getAttribute('data-view') === v || (b.hasAttribute('data-more') && ['mr', 'learn', 'challenge', 'stats', 'shop', 'profile', 'settings'].indexOf(v) >= 0)); });
     if (v === 'rank' && window.Board) Board.show();
     if (v === 'chat' && window.DM) DM.onShow();
     if (v === 'profile' && window.Account) Account.show();
@@ -3456,7 +3458,7 @@ var APP = (function () {
   }
   function openMore() {
     var list = el('div', { class: 'more-list' });
-    ['learn', 'challenge', 'stats', 'shop', 'profile', 'settings'].forEach(function (v) {
+    ['mr', 'learn', 'challenge', 'stats', 'shop', 'profile', 'settings'].forEach(function (v) {
       list.appendChild(el('button', { class: 'btn' + (currentView === v ? ' primary' : ''), text: t('nav_' + v), onclick: function () { clear($('modalRoot')); showView(v); } }));
     });
     modal(t('nav_more'), list, [{ label: t('close') }]);
@@ -3562,13 +3564,26 @@ var APP = (function () {
       if (p.stats && typeof p.stats === 'object') { var fresh = Object.assign(Store.defaultStats(), p.stats); Object.keys(ST).forEach(function (k) { delete ST[k]; }); Object.assign(ST, fresh); }
       save(); applyTheme(); applyI18n();
       try { if (window.UIX && UIX.refresh) ['stats', 'settings', 'learn', 'challenge'].forEach(function (v) { UIX.refresh(v); }); } catch (e) { }
+      /* the unfinished solo game saved on the server replaces a fresh, untouched board (never a game in progress) */
+      var g = p.game;
+      if (g && g.puzzle && g.puzzle.length === 81 && g.solution && g.values && g.status !== 'won' && g.status !== 'lost') {
+        var fresh = !G || G.status === 'custom' || ((!G.ph || !G.ph.length) && (G.elapsed || 0) < 15000) || G.status === 'won' || G.status === 'lost';
+        if (fresh && (!G || G.id !== g.id || (G.ph || []).length < (g.ph || []).length)) { data.game = g; restoreOrNew(); }
+      }
+    },
+    /* v4.4: snapshot of the current solo game for the server (history trimmed to keep it small) */
+    gameSnap: function () {
+      save(); var d = Store.get(Store.KEY); var g = d && d.game;
+      if (!g || g.status === 'won' || g.status === 'lost') return null;
+      g = Object.assign({}, g); g.bh = (g.bh || []).slice(-60); g.bp = Math.min(g.bp || 0, g.bh.length); g.ph = (g.ph || []).slice(-120);
+      return g;
     }
   };
 })();
 
 /* ===================== 13. STATISTICS, LEARNING LIBRARY, CHALLENGES, SETTINGS VIEWS ===================== */
 Object.assign(I18N.bm, {
-  nav_rank: 'Ranking', nav_profile: 'Profil', nav_more: 'Lagi', gmode: 'Mod', pick: '— pilih —', save: 'Simpan', refresh: 'Muat semula', cancel: 'Batal', casual: 'Santai', unverified: 'tidak disahkan',
+  nav_rank: 'Ranking', nav_profile: 'Profil', nav_more: 'Lagi', nav_mr: 'MR 2v2/3v3', gmode: 'Mod', pick: '— pilih —', save: 'Simpan', refresh: 'Muat semula', cancel: 'Batal', casual: 'Santai', unverified: 'tidak disahkan',
   vs_info_srv: 'Disambung ke pelayan SLA. Puzzle, langkah, kesilapan, keputusan dan Elo disahkan di pelayan. Hanya pencil mark manual dibenarkan; hint, solver, bot dan calon automatik dikunci. Muat semula semasa perlawanan: anda ada 30 saat untuk kembali sebelum dikira kalah.',
   vs_info_mqtt: 'Mod tanpa akaun: bilik santai Klasik melalui broker MQTT awam (EMQX / HiveMQ). Saluran ini AWAM, bukan peribadi, dan keputusan tidak disahkan pelayan. Log masuk untuk Ranked, Killer 1vs1, rakan dan papan pendahulu.',
   vs_killer_srv: 'Killer 1vs1 memerlukan akaun (pelayan mengesahkan sangkar).', vs_srv_room: 'Bilik pelayan · keputusan disahkan pelayan', vs_inv_wait: 'Menunggu {n} menerima jemputan...', vs_rk_auto: 'Ranked: kedua-dua pemain sedia secara automatik.',
@@ -3603,7 +3618,7 @@ Object.assign(I18N.bm, {
   geo_attr: 'Senarai negara dan negeri: countries-states-cities-database oleh dr5hn (lesen ODbL).'
 });
 Object.assign(I18N.en, {
-  nav_rank: 'Ranking', nav_profile: 'Profile', nav_more: 'More', gmode: 'Mode', pick: '— choose —', save: 'Save', refresh: 'Refresh', cancel: 'Cancel', casual: 'Casual', unverified: 'unverified',
+  nav_rank: 'Ranking', nav_profile: 'Profile', nav_more: 'More', nav_mr: 'MR 2v2/3v3', gmode: 'Mode', pick: '— choose —', save: 'Save', refresh: 'Refresh', cancel: 'Cancel', casual: 'Casual', unverified: 'unverified',
   vs_info_srv: 'Connected to the SLA server. Puzzle, moves, mistakes, results and Elo are validated on the server. Only manual pencil marks are allowed; hints, solver, bot and auto candidates are locked. Reloading during a match: you have 30 seconds to return before it counts as a loss.',
   vs_info_mqtt: 'No-account mode: casual Classic rooms over a public MQTT broker (EMQX / HiveMQ). This channel is PUBLIC, not private, and results are not server-verified. Log in for Ranked, Killer 1vs1, friends and leaderboards.',
   vs_killer_srv: 'Killer 1vs1 needs an account (the server validates cages).', vs_srv_room: 'Server room · results verified by the server', vs_inv_wait: 'Waiting for {n} to accept the invite...', vs_rk_auto: 'Ranked: both players are readied automatically.',
@@ -4079,13 +4094,23 @@ var Stickers = (function () {
 var ChatWall = (function () {
   'use strict';
   /* Chat wallpaper like WhatsApp: built-in patterns (adapt to light/dark), solid colours, or a picture from the
-     gallery. Stored on THIS device only (settings.chatBg / chatBgDim + an in-memory image for this tab),
-     never uploaded and never sent to the opponent. */
+     gallery. settings.chatBg / chatBgDim sync with the player's settings; the gallery picture is kept on the
+     server for the signed-in player only (GET/PUT /api/me/wallpaper) and is never sent to the opponent. */
   var IMG_KEY = 'sla.chatbg.v1', MAX_IMG = 400 * 1024;
   var PRESETS = ['default', 'plain', 'grid', 'digits', 'diag', 'waves', 'blue', 'night', 'mist', 'custom'];
   var imgMem = '';
   function getImg() { return imgMem; }
-  function setImg(d) { imgMem = d || ''; return true; }
+  function setImg(d) {
+    imgMem = d || '';
+    if (window.Net && Net.user()) Net.api(imgMem ? 'PUT' : 'DELETE', '/api/me/wallpaper', imgMem ? { image: imgMem } : undefined).then(function (r) { if (!r.ok) toast(t('wp_quota'), 'err'); });
+    return true;
+  }
+  function loadImg() {
+    if (!window.Net || !Net.user()) return;
+    Net.api('GET', '/api/me/wallpaper').then(function (r) { if (r.ok && r.body.image && r.body.image !== imgMem) { imgMem = r.body.image; apply(); } });
+  }
+  var wpUid = null;
+  setTimeout(function () { if (window.Net) { Net.on('user', function (u) { if (u && u.id !== wpUid) { wpUid = u.id; loadImg(); } else if (!u && wpUid !== null) { wpUid = null; imgMem = ''; apply(); } }); } }, 0);
   function cur() { var S = APP.settings(), b = S.chatBg; if (PRESETS.indexOf(b) < 0 || (b === 'custom' && !getImg())) b = 'default'; return b; }
   function dim() { var d = +APP.settings().chatBgDim; return isFinite(d) ? Math.max(0, Math.min(70, Math.round(d))) : 0; }
   function paint(box, id, d, img) {
@@ -5086,7 +5111,7 @@ window.__API_BASE__ = window.__API_BASE__ || '__PORT_8000__';
 var Net = (function () {
   'use strict';
   var TK = 'sla.auth.v3';
-  var base = null, avail = 'checking', token = null, user = null, ws = null, wsState = 'off', backoff = 1000, rt = null, handlers = {}, serverInfo = null, manualOff = false;
+  var base = null, avail = 'checking', token = null, user = null, ws = null, wsState = 'off', backoff = 1000, rt = null, handlers = {}, serverInfo = null, manualOff = false, restoring = false;
   function on(type, fn) { (handlers[type] = handlers[type] || []).push(fn); }
   function emit(type, m) { (handlers[type] || []).concat(handlers['*'] || []).forEach(function (fn) { try { fn(m, type); } catch (e) { console.error('Net handler', type, e); } }); }
   function candidates() {
@@ -5119,8 +5144,16 @@ var Net = (function () {
       });
     }).catch(function () { return { ok: false, status: 0, body: { error: 'network' } }; });
   }
-  function setSession(tk, u) { token = tk; user = u; Store.set(TK, { token: tk, uid: u.id, username: u.username }); emit('user', u); connect(); }
-  function dropSession() { token = null; user = null; Store.del(TK); closeWs(); emit('user', null); }
+  /* v4.4: "remember me" lives in an HttpOnly cookie set by the server – no browser storage is used */
+  /* Fallback: some hosting proxies strip Set-Cookie from the app server, so the browser also keeps a first-party
+     cookie (no web storage APIs) that is sent explicitly as a Bearer header to /api/auth/session on reload. */
+  var RT = 'wcs_rt';
+  function rtGet() { try { var m = document.cookie.match(/(?:^|;\s*)wcs_rt=([^;]+)/); return m ? decodeURIComponent(m[1]) : null; } catch (e) { return null; } }
+  function rtSet(tk, age) { try { document.cookie = RT + '=' + (tk ? encodeURIComponent(tk) : '') + '; Path=/; Max-Age=' + age + '; SameSite=Strict' + (location.protocol === 'https:' ? '; Secure' : ''); } catch (e) { } }
+  function remember(tk) { rtSet(tk, 30 * 86400); try { fetch(url('/api/auth/remember'), { method: 'POST', headers: { authorization: 'Bearer ' + tk }, credentials: 'same-origin', cache: 'no-store' }).catch(function () { }); } catch (e) { } }
+  function forget() { rtSet('', 0); try { fetch(url('/api/auth/forget'), { method: 'POST', credentials: 'same-origin', cache: 'no-store' }).catch(function () { }); } catch (e) { } }
+  function setSession(tk, u) { token = tk; user = u; Store.set(TK, { token: tk, uid: u.id, username: u.username }); remember(tk); emit('user', u); connect(); }
+  function dropSession() { token = null; user = null; Store.del(TK); forget(); closeWs(); emit('user', null); }
   function setUser(u) { if (!u) return; user = u; emit('user', u); }
   /* ---------- WebSocket ---------- */
   function wsUrl() { var u = new URL(url('/ws'), location.href); u.protocol = u.protocol === 'https:' ? 'wss:' : 'ws:'; return u.toString(); }
@@ -5157,14 +5190,22 @@ var Net = (function () {
     document.addEventListener('visibilitychange', function () { if (!document.hidden && token && !ws && !manualOff) { backoff = 1000; connect(); } });
     window.addEventListener('online', function () { if (token && !ws) { backoff = 1000; connect(); } });
     return probe().then(function (okk) {
-      if (!okk || !token) return;
+      if (!okk) return;
+      if (!token) {
+        restoring = true; emit('status');
+        return fetch(url('/api/auth/session'), { credentials: 'same-origin', cache: 'no-store', headers: rtGet() ? { authorization: 'Bearer ' + rtGet() } : {} }).then(function (r) { return r.ok ? r.json() : null; }).then(function (j) {
+          restoring = false;
+          if (j && typeof j.token === 'string' && j.user) { token = j.token; user = j.user; Store.set(TK, { token: token, uid: user.id, username: user.username }); emit('user', user); connect(); }
+          else { if (rtGet()) rtSet('', 0); emit('status'); }
+        }).catch(function () { restoring = false; emit('status'); });
+      }
       return api('GET', '/api/me').then(function (r) { if (r.ok && r.body.user) { user = r.body.user; emit('user', user); connect(); } });
     });
   }
   return {
     init: init, on: on, api: api, send: send, setSession: setSession, dropSession: dropSession, setUser: setUser, reconnectNow: reconnectNow, probe: probe,
     avail: function () { return avail; }, user: function () { return user; }, token: function () { return token; }, wsState: function () { return wsState; },
-    ready: function () { return wsState === 'on' && !!user; }, info: function () { return serverInfo; }, base: function () { return base; }
+    ready: function () { return wsState === 'on' && !!user; }, info: function () { return serverInfo; }, base: function () { return base; }, restoring: function () { return restoring; }, url: url
   };
 })();
 
@@ -7270,5 +7311,7 @@ var TurnUI = (function () {
 document.addEventListener('DOMContentLoaded',function(){try{UIX.bindSettings();}catch(e){console.error(e);}APP.init();try{MP.init();}catch(e){console.error('MP init failed',e);}try{Social.init();}catch(e){console.error('Social init failed',e);}try{Account.init();Board.init();}catch(e){console.error('Account init failed',e);}try{Avatar.init();}catch(e){console.error('Avatar init failed',e);}try{DM.init();}catch(e){console.error('DM init failed',e);}try{Lounge.init();}catch(e){console.error('Lounge init failed',e);}try{TurnUI.init();}catch(e){console.error('TURN UI init failed',e);}try{WCSUI.init();}catch(e){console.error('WCS init failed',e);}Net.init();});
 </script>
 <script src="v44.js"></script>
+<script src="v45.js"></script>
+<script src="bgm.js"></script>
 </body>
 </html>

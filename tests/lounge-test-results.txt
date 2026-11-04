@@ -1,4 +1,4 @@
-PASS health reports version 4.4.0 and lounge count
+PASS health reports version 4.4.1 and lounge count
 PASS register 7 users
 PASS create public lounge (max 5)
 PASS lounge code format

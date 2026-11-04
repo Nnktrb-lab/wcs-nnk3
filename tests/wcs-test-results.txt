@@ -1,5 +1,5 @@
-PASS server version 4.4.0
-PASS schema version 5
+PASS server version 4.4.1
+PASS schema version 6
 PASS custom room countdown says Elo-rated
 PASS custom WIN: 1200 → 1220 (+20, K=40, E=0.5)
 PASS custom LOSE: 1200 → 1180 (−20)

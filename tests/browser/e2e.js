@@ -234,10 +234,10 @@ async function solveMatch(p, wrongFirst) {
     await A.click('#setWall'); await A.waitForSelector('#wpFile', { state: 'attached' });
     await A.setInputFiles('#wpFile', { name: 'w.png', mimeType: 'image/png', buffer: wpng }); await A.waitForFunction(() => /url\(/.test(document.getElementById('wpPrev').style.backgroundImage), null, { timeout: 8000 });
     await modalBtn(A, 0);
-    ok(await A.evaluate(() => APP.settings().chatBg === 'custom' && /^data:image\/jpeg/.test(localStorage.getItem('sla.chatbg.v1') || '') && localStorage.getItem('sla.chatbg.v1').length <= 400 * 1024), 'gallery wallpaper stored locally (≤ 400 KB)');
-    await A.reload(); await A.waitForFunction(() => window.Net && Net.avail() === 'ok'); await sleep(600);
+    await sleep(800); { const w = await A.evaluate(() => Net.api('GET', '/api/me/wallpaper').then((r) => ({ st: r.status, bg: APP.settings().chatBg, len: (r.body.image || '').length, jpg: /^data:image\/jpeg/.test(r.body.image || ''), ls: Object.keys(localStorage).filter((k) => k !== 'sla.auth.v3').length }))); ok(w.bg === 'custom' && w.jpg && w.len <= 400 * 1024 && w.ls === 0, 'gallery wallpaper stored on the server (≤ 400 KB, no localStorage)', w); }
+    await A.reload(); await A.waitForFunction(() => window.Net && Net.avail() === 'ok' && Net.user()); await A.waitForFunction(() => document.getElementById('chatWall').classList.contains('wp-custom') && /url\(/.test(document.getElementById('chatWall').style.backgroundImage), null, { timeout: 10000 }).catch(() => null);
     ok(await A.evaluate(() => document.getElementById('chatWall').classList.contains('wp-custom') && /url\(/.test(document.getElementById('chatWall').style.backgroundImage)), 'custom wallpaper persists after reload');
-    ok(await A.evaluate(() => { const d = JSON.parse(localStorage.getItem('sla.v2') || '{}'); return !!d.stats && !!d.settings; }), 'existing local progress intact after wallpaper change');
+    ok(await A.evaluate(() => !!APP.stats() && !!APP.settings() && APP.settings().chatBg === 'custom'), 'existing progress + settings intact after wallpaper change and reload');
     // ---------- v3.3: full match history in 1vs1 panel ----------
     await nav(A, 'versus'); await sleep(1200);
     const hr = await A.$$eval('#rkHist .rk-row', (r) => r.map((x) => x.textContent));

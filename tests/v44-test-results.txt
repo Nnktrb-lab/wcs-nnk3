@@ -1,5 +1,5 @@
-PASS health reports version 4.4.0
-PASS schema version 5
+PASS health reports version 4.4.1
+PASS schema version 6
 PASS table player_bans exists
 PASS table player_reports exists
 PASS table coin_tx exists

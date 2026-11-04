@@ -88,6 +88,7 @@ function init(ctx) {
   /* Remove a freshly banned player from anything competitive. Never changes Elo or Coins. */
   function enforce(uid, b) {
     if (ctx.queue.delete(uid)) { sendTo(uid, { t: 'mm', searching: false }); }
+    try { const M = ctx.getMR && ctx.getMR(); if (M) M.voidForBan(uid); } catch (e) { console.error('mr ban', e.message); }
     try { if (ctx.getWCS().queued(uid)) ctx.getWCS().onWs({ user: Q.userById.get(uid) }, { t: 'wcs_cancel' }, null); } catch (e) { }
     const room = ctx.roomOf(uid);
     if (room) {
@@ -289,7 +290,8 @@ function init(ctx) {
   function rewardEligible(uid) {
     const u = Q.userById.get(uid); if (!u) return [];
     const out = [];
-    if ((u.games || 0) >= 100) out.push('veteran');
+    if ((u.games || 0) + (u.casual_games || 0) + (u.mr_games || 0) >= 100) out.push('veteran');
+    if ((u.mr_wins || 0) >= 25) out.push('mrstar');
     if (db.prepare('SELECT COUNT(*) n FROM users WHERE id < ?').get(uid).n < FOUNDER_LIMIT) out.push('founder');
     if (db.prepare('SELECT 1 FROM wcs_entries WHERE user_id = ? AND seed IS NOT NULL').get(uid)) out.push('legend');
     if (db.prepare("SELECT 1 FROM wcs_ko k WHERE (k.p1 = ? OR k.p2 = ?) AND k.round = (SELECT MAX(round) FROM wcs_ko WHERE season_id = k.season_id)").get(uid, uid)
@@ -306,7 +308,7 @@ function init(ctx) {
     welcome(user.id); syncRewards(user.id);
     const u = Q.userById.get(user.id), own = owned(user.id);
     return { coins: u.coins || 0, equipped: own.has(u.border) ? u.border : 'none',
-      borders: BORDERS.map((b) => ({ id: b.id, rarity: b.rarity, price: b.price, reward: b.reward || null, isNew: !!b.isNew, premium: !!b.premium, owned: own.has(b.id), available: b.id !== 'mrstar' })) };
+      borders: BORDERS.map((b) => ({ id: b.id, rarity: b.rarity, price: b.price, reward: b.reward || null, isNew: !!b.isNew, premium: !!b.premium, owned: own.has(b.id), available: true })) };
   });
   const buyTx = db.transaction((uid, b) => {
     if (db.prepare('SELECT 1 FROM owned_borders WHERE user_id = ? AND border_id = ?').get(uid, b.id)) return { error: 'owned' };

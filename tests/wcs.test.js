@@ -87,9 +87,9 @@ async function main() {
   for (let i = 0; i < 60; i++) { try { await fetch(BASE + '/api/health'); break; } catch (e) { await sleep(100); } }
   const socks = []; const S = async (tok) => { const s = new Sock(tok); await s.open(); socks.push(s); return s; };
   try {
-    const h = await api('GET', '/api/health'); ok(h.body.version === '4.4.0', 'server version 4.4.0');
+    const h = await api('GET', '/api/health'); ok(h.body.version === '4.4.1', 'server version 4.4.1');
     const rdb = new Database(DBF, { readonly: true });
-    ok(rdb.prepare("SELECT v FROM schema_meta WHERE k='version'").get().v === '5', 'schema version 5');
+    ok(rdb.prepare("SELECT v FROM schema_meta WHERE k='version'").get().v === '6', 'schema version 6');
 
     /* ===== 1. Custom Room Elo ===== */
     const A = await reg('cr_alice', 'MY'), B = await reg('cr_bob', 'SG');

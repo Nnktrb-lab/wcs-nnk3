@@ -58,9 +58,9 @@ async function main() {
   for (let i = 0; i < 80; i++) { try { await fetch(BASE + '/api/health'); break; } catch (e) { await sleep(100); } }
   const socks = []; const S = async (tok) => { const s = new Sock(tok); await s.open(); socks.push(s); return s; };
   try {
-    const h = await api('GET', '/api/health'); ok(h.body.version === '4.4.0', 'health reports version 4.4.0', h.body);
+    const h = await api('GET', '/api/health'); ok(h.body.version === '4.4.1', 'health reports version 4.4.1', h.body);
     const rdb = new Database(DBF, { readonly: true });
-    ok(rdb.prepare("SELECT v FROM schema_meta WHERE k='version'").get().v === '5', 'schema version 5');
+    ok(rdb.prepare("SELECT v FROM schema_meta WHERE k='version'").get().v === '6', 'schema version 6');
     ['player_bans', 'player_reports', 'coin_tx', 'owned_borders'].forEach((t) => ok(!!rdb.prepare("SELECT 1 FROM sqlite_master WHERE type='table' AND name=?").get(t), 'table ' + t + ' exists'));
 
     const ADM = await reg('v44_admin'); await sleep(50);

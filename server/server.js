@@ -17,7 +17,7 @@ const { Worker } = require('worker_threads');
 const { WebSocketServer } = require('ws');
 const DB = require('./db');
 
-const VERSION = '4.4.0';
+const VERSION = '4.4.1';
 const PORT = +process.env.PORT || 8000;
 const ROOT = path.join(__dirname, '..');
 const SITE = path.join(ROOT, 'site');
@@ -33,6 +33,7 @@ const TEST_HOOKS = process.env.SLA_TEST_HOOKS === '1';
 let CLOCK_OFF = 0;
 const now = () => Date.now() + CLOCK_OFF;
 let WCS = null; // WCS module (server/wcs.js), wired after the core is defined
+let MR = null, SOC = null; // v4.4 build 2: Multiplayer Ranked (server/mr.js) + social/collection layer (server/social.js)
 let V44 = null; // v4.4 module (server/v44.js): bans, player reports, audit, coins, border shop
 const DIFFS = ['easy', 'medium', 'hard', 'master', 'extreme'];
 const KILLER_DIFFS = ['medium', 'hard'];
@@ -119,9 +120,10 @@ function pubUser(u) {
 }
 function privUser(u) {
   const p = pubUser(u);
-  return Object.assign(p, { friendCode: u.friend_code, casualGames: u.casual_games, casualWins: u.casual_wins, abandons: u.abandons,
+  Object.assign(p, { friendCode: u.friend_code, casualGames: u.casual_games, casualWins: u.casual_wins, abandons: u.abandons,
     createdAt: u.created_at, k: kFactor(u.games), progressAt: u.progress_at || null, dmPolicy: u.dm_policy === 'friends' ? 'friends' : 'all',
     role: u.role === 'admin' ? 'admin' : 'player', coins: u.coins || 0, banned: V44 ? V44.publicBan(V44.banOf(u.id)) : null, streakBest: u.streak_best || 0, lastFlagChange: u.last_flag_change || null, nextFlagChange: u.next_flag_change || null });
+  return SOC ? SOC.enrich(u, p) : p;
 }
 function newSession(uid) {
   const tok = crypto.randomBytes(32).toString('base64url');
@@ -158,6 +160,14 @@ function send(res, code, obj) {
   res.writeHead(code, { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store', 'X-Content-Type-Options': 'nosniff', 'Referrer-Policy': 'no-referrer' });
   res.end(JSON.stringify(obj));
 }
+function readRaw(req, max) {
+  return new Promise((resolve, reject) => {
+    let size = 0; const chunks = [];
+    req.on('data', (c) => { size += c.length; if (size > max) { reject(new Error('too_large')); req.destroy(); return; } chunks.push(c); });
+    req.on('end', () => resolve(Buffer.concat(chunks)));
+    req.on('error', reject);
+  });
+}
 function readBody(req, max) {
   return new Promise((resolve, reject) => {
     let size = 0; const chunks = []; const lim = max || 96 * 1024;
@@ -166,20 +176,29 @@ function readBody(req, max) {
     req.on('error', reject);
   });
 }
-const MIME = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript', '.json': 'application/json', '.css': 'text/css', '.svg': 'image/svg+xml', '.png': 'image/png', '.ico': 'image/x-icon', '.webmanifest': 'application/manifest+json' };
+const MIME = { '.mp3': 'audio/mpeg', '.txt': 'text/plain; charset=utf-8', '.m4a': 'audio/mp4', '.woff2': 'font/woff2', '.html': 'text/html; charset=utf-8', '.js': 'text/javascript', '.json': 'application/json', '.css': 'text/css', '.svg': 'image/svg+xml', '.png': 'image/png', '.ico': 'image/x-icon', '.webmanifest': 'application/manifest+json' };
 function serveStatic(req, res, p) {
   let rel = decodeURIComponent(p.split('?')[0]); if (rel === '/' || rel === '') rel = '/index.html';
   const file = path.normalize(path.join(SITE, rel));
   if (!file.startsWith(SITE + path.sep)) { res.writeHead(403); return res.end(); }
   fs.readFile(file, (e, buf) => {
     if (e) { res.writeHead(404, { 'Content-Type': 'text/plain' }); return res.end('Not found'); }
-    res.writeHead(200, { 'Content-Type': MIME[path.extname(file)] || 'application/octet-stream', 'Cache-Control': 'no-cache' });
+    const type = MIME[path.extname(file)] || 'application/octet-stream';
+    const rg = /^bytes=(\d*)-(\d*)$/.exec(String(req.headers.range || ''));
+    if (rg && (rg[1] || rg[2])) {
+      let a = rg[1] ? Number(rg[1]) : buf.length - Number(rg[2]), b = rg[1] && rg[2] ? Number(rg[2]) : buf.length - 1;
+      if (a < 0) a = 0; if (b >= buf.length) b = buf.length - 1;
+      if (a > b) { res.writeHead(416, { 'Content-Range': 'bytes */' + buf.length }); return res.end(); }
+      res.writeHead(206, { 'Content-Type': type, 'Content-Range': 'bytes ' + a + '-' + b + '/' + buf.length, 'Accept-Ranges': 'bytes', 'Content-Length': b - a + 1, 'Cache-Control': 'no-cache' });
+      return res.end(buf.subarray(a, b + 1));
+    }
+    res.writeHead(200, { 'Content-Type': type, 'Cache-Control': type.startsWith('audio/') ? 'public, max-age=86400' : 'no-cache', 'Accept-Ranges': 'bytes' });
     res.end(buf);
   });
 }
 
 const routes = [];
-function route(method, pattern, auth, fn, opts) { routes.push({ method, re: new RegExp('^' + pattern.replace(/:(\w+)/g, '(?<$1>[^/]+)') + '$'), auth, fn, max: opts && opts.max }); }
+function route(method, pattern, auth, fn, opts) { routes.push({ method, re: new RegExp('^' + pattern.replace(/:(\w+)/g, '(?<$1>[^/]+)') + '$'), auth, fn, max: opts && opts.max, raw: !!(opts && opts.raw) }); }
 
 const server = http.createServer(async (req, res) => {
   const u = new URL(req.url, 'http://x');
@@ -195,7 +214,7 @@ const server = http.createServer(async (req, res) => {
     if (r.auth === 'opt') user = authToken(bearer(req)) || null;
     else if (r.auth) { user = authToken(bearer(req)); if (!user) return send(res, 401, { error: 'unauthorized' }); }
     try {
-      const body = req.method === 'GET' ? {} : await readBody(req, r.max);
+      const body = req.method === 'GET' ? {} : r.raw ? await readRaw(req, r.max) : await readBody(req, r.max);
       const out = await r.fn({ req, res, body, user, params: m.groups || {}, query: u.searchParams, ip });
       if (out !== undefined) { const isR = out && typeof out.status === 'number' && 'body' in out; send(res, isR ? out.status : 200, isR ? out.body : out); }
     } catch (e) {
@@ -254,7 +273,7 @@ route('POST', '/api/auth/login', false, async ({ body, ip }) => {
   Q.clearAttempt.run('u:' + uname);
   return { token: newSession(u.id), user: privUser(u) };
 });
-route('POST', '/api/auth/logout', true, ({ req }) => { Q.delSession.run(sha(bearer(req))); return { ok: true }; });
+route('POST', '/api/auth/logout', true, ({ req, res }) => { Q.delSession.run(sha(bearer(req))); if (SOC) SOC.setCookie(req, res, '', 0); return { ok: true }; });
 route('POST', '/api/auth/logout-all', true, ({ user }) => { Q.delUserSessions.run(user.id); kick(user.id); return { ok: true }; });
 
 route('POST', '/api/auth/recover', false, async ({ body, ip }) => {
@@ -345,15 +364,17 @@ route('GET', '/api/me/progress', true, ({ user }) => {
   return { progress: data, at: u.progress_at || null };
 });
 route('PUT', '/api/me/progress', true, ({ body, user }) => {
-  if (limited('prog:' + user.id, 20, 600000)) return R(429, { error: 'rate_limited' });
+  if (limited('prog:' + user.id, 150, 600000)) return R(429, { error: 'rate_limited' });
   const p = body.progress;
   if (!p || typeof p !== 'object' || Array.isArray(p)) return R(400, { error: 'bad_progress' });
-  const keep = {}; ['stats', 'settings'].forEach((k) => { if (p[k] && typeof p[k] === 'object') keep[k] = p[k]; });
+  const keep = {}; ['stats', 'settings', 'game', 'extra'].forEach((k) => { if (p[k] && typeof p[k] === 'object' && !Array.isArray(p[k])) keep[k] = p[k]; });
+  if (p.game === null) keep.game = null; // the solo game was finished / abandoned
   if (keep.settings) { delete keep.settings.turn; } // never store TURN secrets server-side
-  const s = JSON.stringify(keep); if (s.length > 64 * 1024) return R(400, { error: 'too_large' });
+  if (p.game === undefined) { try { const old = JSON.parse(Q.userById.get(user.id).progress_json || '{}'); if (old.game) keep.game = old.game; } catch (e) { } }
+  const s = JSON.stringify(keep); if (s.length > 256 * 1024) return R(400, { error: 'too_large' });
   db.prepare('UPDATE users SET progress_json = ?, progress_at = ? WHERE id = ?').run(s, now(), user.id);
   return { ok: true, at: now() };
-});
+}, { max: 300 * 1024 });
 
 function matchRow(r, uid) {
   const me1 = r.p1 === uid, opp = Q.userById.get(me1 ? r.p2 : r.p1);
@@ -688,6 +709,7 @@ function roomOf(uid) { const c = userRoom.get(uid); return c ? rooms.get(c) : nu
 function other(room, uid) { return room.players.find((p) => p !== uid); }
 function statusOf(uid) {
   if (!clients.has(uid) && !userRoom.has(uid)) return 'offline';
+  if (MR && MR.playing(uid)) return 'playing';
   const r = roomOf(uid);
   if (r) return (r.phase === 'match' || r.phase === 'countdown' || r.phase === 'generating') ? 'playing' : 'lobby';
   if (queue.has(uid)) return 'searching';
@@ -1073,6 +1095,7 @@ function cleanChat(s, max) {
   return s;
 }
 function err(uid, code) { sendTo(uid, { t: 'error', code }); }
+const MR_EXCLUSIVE = new Set(['mm_find', 'room_create', 'room_join', 'invite', 'invite_reply', 'wcs_find']);
 const BAN_GATED = new Set(['mm_find', 'room_create', 'room_join', 'room_ready', 'invite', 'invite_reply', 'rematch', 'wcs_find', 'wcs_ready']);
 function onMessage(c, raw) {
   const uid = c.user.id;
@@ -1083,6 +1106,8 @@ function onMessage(c, raw) {
   if (room) room.touched = now();
   /* v4.4: server-side ban enforcement on every competitive action (UI state is never trusted) */
   if (V44 && BAN_GATED.has(m.t) && !(m.t === 'invite_reply' && m.accept !== true) && V44.gate(uid)) { if (m.t === 'invite_reply' && typeof m.code === 'string') { const r = rooms.get(m.code); if (r && r.invited === uid) { sendTo(r.host, { t: 'invite_declined', username: c.user.username }); closeRoom(r, 'declined'); } } return; }
+  if (MR && (m.t.startsWith('mr_') || m.t === 'mrv_signal')) return MR.onMessage(c, m);
+  if (MR && MR_EXCLUSIVE.has(m.t) && !(m.t === 'invite_reply' && m.accept !== true) && MR.busy(uid)) return err(uid, 'busy');
   switch (m.t) {
     case 'ping': sendTo(uid, { t: 'pong', ts: now() }); return;
     case 'mm_find': {
@@ -1249,6 +1274,7 @@ function onAuthed(ws, user) {
   presence(user.id);
   pushFriends(user.id);
   loungeOnAuthed(user.id);
+  if (MR) MR.onAuthed(user.id);
 }
 function onClosed(ws, uid) {
   const c = clients.get(uid); if (!c || c.ws !== ws) return; // replaced by a newer socket
@@ -1269,6 +1295,7 @@ function onClosed(ws, uid) {
   }
   lastStatus.delete(uid); presence(uid);
   loungeOnClosed(uid);
+  if (MR) MR.onClosed(uid);
 }
 
 const wss = new WebSocketServer({ noServer: true, maxPayload: 32 * 1024 });
@@ -1307,7 +1334,14 @@ WCS = require('./wcs')({ db, Q, now, route, R, sendTo, clients, generate, newRoo
 
 /* ---------- v4.4 – bans, player reports, audit, coins, border shop ---------- */
 V44 = require('./v44').init({ db, Q, now, route, R, sendTo, clients, queue, rooms, roomOf, closeRoom, presence, privUser, refreshClientUser, limited,
-  getWCS: () => WCS, promoteAdmins: () => WCS.loadAdmins() });
+  getWCS: () => WCS, getMR: () => MR, promoteAdmins: () => WCS.loadAdmins() });
+
+/* ---------- v4.4 build 2 – Multiplayer Ranked + social/collection ---------- */
+const cleanText = (s, max) => { if (s == null) return ''; s = String(s).normalize('NFC').replace(/[\u0000-\u001f\u007f-\u009f\u200b-\u200f\u202a-\u202e\u2066-\u2069]/g, '').replace(/\s+/g, ' ').trim(); return s.slice(0, max); };
+SOC = require('./social').init({ db, Q, now, route, R, sendTo, clients, limited, pubUser, privUser, refreshClientUser, isFriend, authToken, bearer, sha, VERSION, SCHEMA: DB.SCHEMA_VERSION,
+  getV44: () => V44, getMR: () => MR, cleanText });
+MR = require('./mr').init({ db, Q, now, route, R, sendTo, clients, generate, kFactor, eloNew, expected, privUser, refreshClientUser, roomOf, queue, getWCS: () => WCS, isFriend, presence, limited,
+  cleanText: (s, max) => cleanChat(s, max), lite: (u) => Object.assign(pubUser(u), { title: SOC.activeTitle(u) }), getV44: () => V44 });
 
 /* ---------- backups ---------- */
 setTimeout(() => { DB.backup(db).catch((e) => console.error('backup', e.message)); }, 60000).unref();
@@ -1316,4 +1350,4 @@ setInterval(() => { DB.backup(db).catch((e) => console.error('backup', e.message
 if (require.main === module) {
   server.listen(PORT, '0.0.0.0', () => console.log('SLA server ' + VERSION + ' listening on ' + PORT));
 }
-module.exports = { server, db, WCS: () => WCS, _test: { customRatedLeft, lounges, userLounge, expected, kFactor, eloNew, tierOf, mmWindow, validGeo, queue, rooms, clients } };
+module.exports = { server, db, WCS: () => WCS, MR: () => MR, _test: { customRatedLeft, lounges, userLounge, expected, kFactor, eloNew, tierOf, mmWindow, validGeo, queue, rooms, clients } };

@@ -5,7 +5,7 @@ const path = require('path');
 const fs = require('fs');
 const Database = require('better-sqlite3');
 
-const SCHEMA_VERSION = 5;
+const SCHEMA_VERSION = 6;
 
 function open(file) {
   const dbFile = file || process.env.SLA_DB || path.join(__dirname, '..', 'data.db');
@@ -251,6 +251,39 @@ function open(file) {
       admin_note TEXT, resolved_by INTEGER, resolved_at INTEGER, created_at INTEGER NOT NULL);
     CREATE INDEX IF NOT EXISTS ix_reports_status ON player_reports(status, created_at);
     CREATE INDEX IF NOT EXISTS ix_reports_target ON player_reports(target_id, created_at);
+  `);
+  /* v6 / WCS v4.4 build 2 (additive only): Multiplayer Ranked, board themes, titles, history privacy,
+     mutes, support reports, server-side music library, remember-me sessions */
+  const cols6 = db.prepare('PRAGMA table_info(users)').all().map((c) => c.name);
+  [['board_theme', "TEXT NOT NULL DEFAULT 'default'"], ['active_title', 'TEXT'], ['history_privacy', "TEXT NOT NULL DEFAULT 'public'"],
+    ['mr_games', 'INTEGER NOT NULL DEFAULT 0'], ['mr_wins', 'INTEGER NOT NULL DEFAULT 0'], ['mr_losses', 'INTEGER NOT NULL DEFAULT 0'], ['mr_draws', 'INTEGER NOT NULL DEFAULT 0']].forEach(([c, d]) => { if (!cols6.includes(c)) db.exec('ALTER TABLE users ADD COLUMN ' + c + ' ' + d); });
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS owned_themes (
+      user_id INTEGER NOT NULL REFERENCES users(id), theme_id TEXT NOT NULL, source TEXT NOT NULL, price INTEGER NOT NULL DEFAULT 0,
+      acquired_at INTEGER NOT NULL, PRIMARY KEY (user_id, theme_id));
+    CREATE TABLE IF NOT EXISTS user_mutes (
+      user_id INTEGER NOT NULL REFERENCES users(id), target_id INTEGER NOT NULL REFERENCES users(id), created_at INTEGER NOT NULL,
+      PRIMARY KEY (user_id, target_id));
+    CREATE TABLE IF NOT EXISTS mr_matches (
+      id INTEGER PRIMARY KEY AUTOINCREMENT, size INTEGER NOT NULL, mode TEXT NOT NULL, diff TEXT NOT NULL, private INTEGER NOT NULL DEFAULT 0,
+      rated INTEGER NOT NULL DEFAULT 1, players_key TEXT, winner TEXT, reason TEXT, puzzle TEXT, solution TEXT, cages TEXT,
+      started_at INTEGER NOT NULL, ended_at INTEGER, duration_ms INTEGER);
+    CREATE INDEX IF NOT EXISTS ix_mr_key ON mr_matches(players_key, started_at);
+    CREATE TABLE IF NOT EXISTS mr_players (
+      match_id INTEGER NOT NULL REFERENCES mr_matches(id), user_id INTEGER NOT NULL REFERENCES users(id), team TEXT NOT NULL, seat INTEGER NOT NULL,
+      rating_before INTEGER, rating_after INTEGER, delta INTEGER, coins INTEGER NOT NULL DEFAULT 0, mistakes INTEGER NOT NULL DEFAULT 0,
+      moves INTEGER NOT NULL DEFAULT 0, result TEXT, PRIMARY KEY (match_id, user_id));
+    CREATE INDEX IF NOT EXISTS ix_mrp_user ON mr_players(user_id, match_id DESC);
+    CREATE TABLE IF NOT EXISTS support_reports (
+      id INTEGER PRIMARY KEY AUTOINCREMENT, user_id INTEGER REFERENCES users(id), category TEXT NOT NULL, body TEXT NOT NULL, client TEXT,
+      status TEXT NOT NULL DEFAULT 'open', admin_note TEXT, resolved_by INTEGER, resolved_at INTEGER, created_at INTEGER NOT NULL);
+    CREATE INDEX IF NOT EXISTS ix_support_status ON support_reports(status, created_at);
+    CREATE TABLE IF NOT EXISTS user_music (
+      id INTEGER PRIMARY KEY AUTOINCREMENT, user_id INTEGER NOT NULL REFERENCES users(id), title TEXT NOT NULL, mime TEXT NOT NULL,
+      size INTEGER NOT NULL, data BLOB NOT NULL, created_at INTEGER NOT NULL);
+    CREATE INDEX IF NOT EXISTS ix_music_user ON user_music(user_id, id);
+    CREATE TABLE IF NOT EXISTS user_wallpaper (
+      user_id INTEGER PRIMARY KEY REFERENCES users(id), data TEXT NOT NULL, size INTEGER NOT NULL, updated_at INTEGER NOT NULL);
   `);
   const cur = db.prepare('SELECT v FROM schema_meta WHERE k = ?').get('version');
   if (!cur) db.prepare('INSERT INTO schema_meta (k, v) VALUES (?, ?)').run('version', String(SCHEMA_VERSION));

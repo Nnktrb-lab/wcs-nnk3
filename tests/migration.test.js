@@ -42,7 +42,7 @@ function check(tag, file, fromVer, withAvatar) {
   const bdir = path.join(path.dirname(file), 'backups');
   const db = cur.open(file);
   const v = db.prepare("SELECT v FROM schema_meta WHERE k = 'version'").get().v;
-  ok(v === String(cur.SCHEMA_VERSION) && cur.SCHEMA_VERSION === 5, tag + ': schema upgraded to v5', v);
+  ok(v === String(cur.SCHEMA_VERSION) && cur.SCHEMA_VERSION === 6, tag + ': schema upgraded to v6', v);
   const users = db.prepare('SELECT * FROM users ORDER BY id').all();
   ok(users.length === 2 && users[0].username === 'Lama1' && users[0].rating === 1236 && users[0].peak === 1250 && users[0].games === 5 && users[0].wins === 4 && users[0].pw_hash === 'hash1' && users[0].progress_json === '{"solved":12}', tag + ': accounts, Elo and progress intact');
   ok(users[0].xp === 777 && users[0].role === 'admin' && users[1].role === 'player', tag + ': XP and roles intact', users.map((u) => [u.xp, u.role]));
@@ -60,8 +60,16 @@ function check(tag, file, fromVer, withAvatar) {
   ok(users.every((u) => u.coins === 0 && u.border === 'none'), tag + ': new columns default safely (0 coins, no border — nothing auto-given)');
   ok(db.prepare('PRAGMA table_info(admin_audit)').all().some((c) => c.name === 'target_id'), tag + ': admin_audit.target_id added');
   ok(db.prepare('SELECT COUNT(*) n FROM owned_borders').get().n === 0 && db.prepare('SELECT COUNT(*) n FROM player_bans').get().n === 0, tag + ': no borders or bans created by migration');
+  /* v6 (4.4.1): MR, themes, titles, privacy, mutes, support, music – additive only */
+  ok(['owned_themes', 'user_mutes', 'mr_matches', 'mr_players', 'support_reports', 'user_music'].every((n) => tables.includes(n)), tag + ': v6 tables created', tables);
+  const cols = db.prepare('PRAGMA table_info(users)').all().map((c) => c.name);
+  ok(['board_theme', 'active_title', 'history_privacy', 'mr_games', 'mr_wins', 'mr_losses', 'mr_draws'].every((c) => cols.includes(c)), tag + ': v6 user columns added', cols);
+  const u2 = db.prepare('SELECT * FROM users ORDER BY id').all();
+  ok(u2.every((u) => (u.board_theme === 'default' || u.board_theme == null) && u.active_title == null && (u.history_privacy === 'public' || u.history_privacy == null) && !u.mr_games && !u.mr_wins), tag + ': v6 columns default safely', u2.map((u) => [u.board_theme, u.active_title, u.history_privacy, u.mr_games]));
+  ok(u2[0].rating === 1236 && u2[0].games === 5 && u2[0].coins === users[0].coins, tag + ': Elo / games / coins unchanged by v6 migration');
+  ok(db.prepare('SELECT COUNT(*) n FROM owned_themes').get().n === 0 && db.prepare('SELECT COUNT(*) n FROM mr_matches').get().n === 0, tag + ': nothing auto-granted by v6');
   db.close();
-  const backups = fs.existsSync(bdir) ? fs.readdirSync(bdir).filter((f) => f.startsWith('pre-migrate-v' + fromVer + '-to-v5')) : [];
+  const backups = fs.existsSync(bdir) ? fs.readdirSync(bdir).filter((f) => f.startsWith('pre-migrate-v' + fromVer + '-to-v6')) : [];
   ok(backups.length === 1, tag + ': pre-migration backup written', backups);
   if (backups.length) {
     const Database = require('better-sqlite3');
@@ -84,7 +92,18 @@ try {
   d.prepare('INSERT INTO elo_transactions (user_id, match_id, kind, delta, before, after, created_at) VALUES (1, ?, ?, 12, 1224, 1236, ?)').run('m1', 'ranked', Date.now());
   d.prepare("INSERT INTO admin_audit (admin_id, action, detail, created_at) VALUES (1, 'wcs_config', '{}', ?)").run(Date.now());
   d.close();
-  check('v4→v5', f4, 4, true);
+  check('v4→v6', f4, 4, true);
+  /* v4.4.0 (schema 5, what the live server runs before this release) → v6, with v4.4 data in place */
+  const v5c = execSync('git log --format=%h --grep="replace browser storage with server sync" -n 1', { cwd: ROOT }).toString().trim();
+  const v5 = oldDbModule(v5c, 'v5'); ok(v5.SCHEMA_VERSION === 5, 'old v4.4.0 db.js is schema 5');
+  const f5 = path.join(TMP, 'd5', 'data.db'); fs.mkdirSync(path.dirname(f5), { recursive: true });
+  const d5 = v5.open(f5); seed(d5, true);
+  d5.prepare("UPDATE users SET xp = 777, role = 'admin', coins = 0 WHERE id = 1").run();
+  d5.prepare('INSERT INTO elo_transactions (user_id, match_id, kind, delta, before, after, created_at) VALUES (1, ?, ?, 12, 1224, 1236, ?)').run('m1', 'ranked', Date.now());
+  d5.prepare("INSERT INTO admin_audit (admin_id, action, detail, created_at) VALUES (1, 'wcs_config', '{}', ?)").run(Date.now());
+  d5.close();
+  fs.rmSync(path.join(TMP, 'd5', 'backups'), { recursive: true, force: true });
+  check('v5→v6', f5, 5, true);
 } catch (e) { fail++; console.log('FAIL exception', e && e.stack); }
 fs.rmSync(TMP, { recursive: true, force: true });
 console.log(pass + ' passed, ' + fail + ' failed');

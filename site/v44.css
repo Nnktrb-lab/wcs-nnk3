@@ -198,3 +198,24 @@ input[type=number]:invalid{border-color:color-mix(in srgb,var(--err) 60%,transpa
 }
 .v44-form .fld{display:flex;flex-direction:column;gap:6px;font-size:12px;color:var(--muted);font-weight:600}
 .v44-form .fld .seg{align-self:flex-start}
+
+/* v4.4.1 – admin grant form + support list */
+.adm-grant{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;align-items:end;margin-top:10px}
+.adm-grant input,.adm-grant select{min-height:42px;padding:8px 12px}
+#admSupport .wcs-adm-r .row{gap:8px;flex-wrap:wrap;align-items:center}
+#admSupport .wcs-adm-r .row input{min-width:160px;flex:1;min-height:38px;padding:6px 10px}
+.w45-field{display:flex;flex-direction:column;gap:8px;max-width:420px}
+.w45-field select,.w45-field textarea{min-height:42px;padding:8px 12px}
+#w45Shop{margin-top:16px}
+.w41-item.locked{opacity:.62}
+.th-sw{width:56px;height:56px}
+.ok-t{color:var(--ok)}
+/* v4.4.1: compact mobile header (music + coin chips must not cover the logo) */
+@media (max-width:480px){
+  .topbar .brand{flex:0 0 auto}
+  .topbar .brand-t{display:none}
+  .topbar .quick{min-width:0;flex:1 1 auto;justify-content:flex-end;gap:4px}
+  .topbar .quick > *{flex:0 0 auto}
+  #qProf{max-width:104px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+}
+@media (max-width:340px){#qCoins span{display:none}}

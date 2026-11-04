@@ -9,7 +9,7 @@
     v44_buy: 'Beli', v44_equip: 'Pakai', v44_equipped: 'Dipakai', v44_owned: 'Dimiliki', v44_new: 'BARU', v44_reward: 'Ganjaran', v44_soon: 'Akan datang',
     v44_buy_q: 'Beli border {n} dengan {p} Coin?', v44_bought: 'Border dibeli', v44_equip_ok: 'Border dipakai', v44_hist: 'Sejarah Coin', v44_hist_none: 'Belum ada transaksi.',
     v44_tx_welcome: 'Bonus selamat datang', v44_tx_match: 'Ganjaran perlawanan', v44_tx_daily: 'Pertandingan Harian', v44_tx_shop: 'Pembelian kedai', v44_preview: 'Pratonton',
-    rw_veteran: '100 perlawanan Ranked', rw_founder: '100 akaun pertama WCS', rw_wcs_ko: 'Layak ke kalah mati WCS', rw_wcs_final: 'Mara ke Grand Final WCS', rw_wcs_champion: 'Juara WCS', rw_mr_champion: 'Juara MR (mod MR belum tersedia)',
+    rw_veteran: '100 perlawanan (semua mod)', rw_founder: '100 akaun pertama WCS', rw_wcs_ko: 'Layak ke kalah mati WCS', rw_wcs_final: 'Mara ke Grand Final WCS', rw_wcs_champion: 'Juara WCS', rw_mr_champion: 'Menang 25 perlawanan MR 2v2/3v3',
     bd_none: 'Tiada border', bd_bronze: 'Gangsa', bd_silver: 'Perak', bd_jade: 'Jed', bd_gold: 'Emas', bd_neon: 'Neon', bd_frost: 'Fros', bd_ruby: 'Delima', bd_sakura: 'Sakura', bd_diamond: 'Berlian', bd_jalur: 'Jalur Gemilang',
     bd_veteran: 'Veteran', bd_galaxy: 'Galaksi', bd_aurora: 'Aurora', bd_royal: 'Diraja', bd_nebula: 'Mythic Nebula', bd_thunder: 'Mythic Thunder', bd_phantom: 'Mythic Phantom', bd_dragon: 'Mythic Dragon', bd_celestial: 'Mythic Celestial',
     bd_legend: 'Legend', bd_mrstar: 'MR Champion', bd_phoenix: 'Phoenix', bd_inferno: 'Inferno', bd_legend2: 'Legendary 2', bd_founder: 'Founder', bd_finalist: 'Finalist', bd_champion: 'Champion',
@@ -32,6 +32,8 @@
     adm_unban_t: 'UNBAN {n}', adm_unban_note: 'Catatan pentadbiran (wajib)', adm_unban_go: 'Sahkan UNBAN', adm_ban_ok: 'BAN dikenakan', adm_unban_ok: 'BAN dibatalkan',
     adm_st_all: 'Semua', adm_st_active: 'Aktif', adm_st_expired: 'Tamat', adm_st_revoked: 'Dibatalkan', adm_st_open: 'Terbuka', adm_st_resolved: 'Selesai', adm_st_dismissed: 'Ditolak',
     adm_col_player: 'Pemain', adm_col_reason: 'Sebab', adm_col_start: 'Mula', adm_col_end: 'Tamat', adm_col_dur: 'Tempoh', adm_col_admin: 'Admin', adm_col_status: 'Status',
+    adm_grant_t: 'Beri ganjaran acara', adm_grant_s: 'Beri border atau tema papan acara kepada pemain. Tidak mengubah Elo atau coin. Setiap pemberian direkodkan dalam audit.', adm_grant_user: 'Username, ID pemain atau ID', adm_grant_note: 'Nota (wajib, min 3 aksara)', adm_grant_btn: 'Beri', adm_grant_q: 'Beri {i} kepada {u}?', adm_grant_owned: 'Pemain sudah memiliki item ini.', adm_grant_ok: 'Ganjaran diberikan dan direkodkan dalam audit.', adm_note_req: 'Nota wajib (sekurang-kurangnya 3 aksara).',
+    adm_sup_t: 'Laporan masalah (sokongan)', adm_note: 'Nota pentadbir', adm_reopen: 'Buka semula', sup_bug: 'Pepijat', sup_match: 'Perlawanan', sup_account: 'Akaun', sup_payment: 'Coin / kedai', sup_other: 'Lain-lain',
     adm_none: 'Tiada rekod.', adm_hist: 'Sejarah ban', adm_reports_on: 'Laporan terhadap pemain', adm_recent: 'Perlawanan terkini', adm_resolve: 'Selesai', adm_dismiss: 'Tolak', adm_from: 'daripada {n}',
     adm_audit_all: 'Semua tindakan', adm_audit_q: 'Tapis ikut pemain / admin', adm_before_after: '{a} → {b}', adm_revoked_by: 'Dibatalkan oleh {n}: {note}', adm_banned_now: 'Diban sehingga {e}', adm_loading: 'Memuatkan…', adm_err: 'Gagal memuatkan. Cuba lagi.',
     adm_cfg_hint: 'Minimum perlawanan 1–50 · Jam setiap pusingan 1–168', adm_cfg_bad: 'Nilai di luar julat dibenarkan.', adm_cfg_same: 'Tiada perubahan untuk disimpan.'
@@ -43,7 +45,7 @@
     v44_buy: 'Buy', v44_equip: 'Equip', v44_equipped: 'Equipped', v44_owned: 'Owned', v44_new: 'NEW', v44_reward: 'Reward', v44_soon: 'Coming soon',
     v44_buy_q: 'Buy the {n} border for {p} Coins?', v44_bought: 'Border purchased', v44_equip_ok: 'Border equipped', v44_hist: 'Coin history', v44_hist_none: 'No transactions yet.',
     v44_tx_welcome: 'Welcome bonus', v44_tx_match: 'Match reward', v44_tx_daily: 'Daily Tournament', v44_tx_shop: 'Shop purchase', v44_preview: 'Preview',
-    rw_veteran: '100 Ranked matches', rw_founder: 'First 100 WCS accounts', rw_wcs_ko: 'Qualify for the WCS knockout', rw_wcs_final: 'Reach the WCS Grand Final', rw_wcs_champion: 'WCS Champion', rw_mr_champion: 'MR Champion (MR mode not available yet)',
+    rw_veteran: '100 matches (all modes)', rw_founder: 'First 100 WCS accounts', rw_wcs_ko: 'Qualify for the WCS knockout', rw_wcs_final: 'Reach the WCS Grand Final', rw_wcs_champion: 'WCS Champion', rw_mr_champion: 'Win 25 MR 2v2/3v3 matches',
     bd_none: 'No border', bd_bronze: 'Bronze', bd_silver: 'Silver', bd_jade: 'Jade', bd_gold: 'Gold', bd_neon: 'Neon', bd_frost: 'Frost', bd_ruby: 'Ruby', bd_sakura: 'Sakura', bd_diamond: 'Diamond', bd_jalur: 'Jalur Gemilang',
     bd_veteran: 'Veteran', bd_galaxy: 'Galaxy', bd_aurora: 'Aurora', bd_royal: 'Royal', bd_nebula: 'Mythic Nebula', bd_thunder: 'Mythic Thunder', bd_phantom: 'Mythic Phantom', bd_dragon: 'Mythic Dragon', bd_celestial: 'Mythic Celestial',
     bd_legend: 'Legend', bd_mrstar: 'MR Champion', bd_phoenix: 'Phoenix', bd_inferno: 'Inferno', bd_legend2: 'Legendary 2', bd_founder: 'Founder', bd_finalist: 'Finalist', bd_champion: 'Champion',
@@ -63,6 +65,8 @@
     adm_unban_t: 'UNBAN {n}', adm_unban_note: 'Administrative note (required)', adm_unban_go: 'Confirm UNBAN', adm_ban_ok: 'BAN applied', adm_unban_ok: 'BAN revoked',
     adm_st_all: 'All', adm_st_active: 'Active', adm_st_expired: 'Expired', adm_st_revoked: 'Revoked', adm_st_open: 'Open', adm_st_resolved: 'Resolved', adm_st_dismissed: 'Dismissed',
     adm_col_player: 'Player', adm_col_reason: 'Reason', adm_col_start: 'Start', adm_col_end: 'End', adm_col_dur: 'Duration', adm_col_admin: 'Admin', adm_col_status: 'Status',
+    adm_grant_t: 'Grant event reward', adm_grant_s: 'Give an event border or board theme to a player. Never changes Elo or coins. Every grant is audit-logged.', adm_grant_user: 'Username, player ID or ID', adm_grant_note: 'Note (required, min 3 chars)', adm_grant_btn: 'Grant', adm_grant_q: 'Grant {i} to {u}?', adm_grant_owned: 'The player already owns this item.', adm_grant_ok: 'Reward granted and audit-logged.', adm_note_req: 'A note is required (at least 3 characters).',
+    adm_sup_t: 'Problem reports (support)', adm_note: 'Admin note', adm_reopen: 'Reopen', sup_bug: 'Bug', sup_match: 'Match', sup_account: 'Account', sup_payment: 'Coins / shop', sup_other: 'Other',
     adm_none: 'No records.', adm_hist: 'Ban history', adm_reports_on: 'Reports against player', adm_recent: 'Recent matches', adm_resolve: 'Resolve', adm_dismiss: 'Dismiss', adm_from: 'from {n}',
     adm_audit_all: 'All actions', adm_audit_q: 'Filter by player / admin', adm_before_after: '{a} → {b}', adm_revoked_by: 'Revoked by {n}: {note}', adm_banned_now: 'Banned until {e}', adm_loading: 'Loading…', adm_err: 'Could not load. Try again.',
     adm_cfg_hint: 'Minimum matches 1–50 · Hours per round 1–168', adm_cfg_bad: 'Value outside the allowed range.', adm_cfg_same: 'Nothing changed.'
@@ -72,6 +76,7 @@
   var BAN_REASONS = ['cheating', 'exploit', 'elo_manip', 'coin_manip', 'bug_abuse', 'rules', 'custom'];
   var REPORT_CATS = ['cheating', 'exploit', 'elo_manip', 'coin_manip', 'bug_abuse', 'abuse', 'other'];
   var BORDER_RE = /^[a-z0-9]{2,16}$/;
+  var BORDER_IDS = ['none', 'bronze', 'silver', 'jade', 'gold', 'neon', 'frost', 'ruby', 'sakura', 'diamond', 'jalur', 'veteran', 'galaxy', 'aurora', 'royal', 'nebula', 'thunder', 'phantom', 'dragon', 'celestial', 'legend', 'mrstar', 'phoenix', 'inferno', 'legend2', 'founder', 'finalist', 'champion'];
 
   function api(m, p, b) { return Net.api(m, p, b); }
   function err(code) { var k = 'e_' + code, s = t(k); return s !== k ? s : (typeof errText === 'function' ? errText(code) : String(code)); }
@@ -138,8 +143,9 @@
     R.appendChild(el('div', { class: 'panel' }, [el('div', { class: 'shop-bar' }, [seg]), grid]));
     var hist = el('div', { class: 'panel' }, [el('h2', {}, [el('span', { class: 'dot' }), el('span', { text: t('v44_hist') })])]);
     if (!coins || !coins.tx.length) hist.appendChild(el('p', { class: 'muted small', text: t('v44_hist_none') }));
-    else { var list = el('div', { class: 'coin-hist' }); coins.tx.forEach(function (x) { var why = t('v44_tx_' + x.reason); list.appendChild(el('div', { class: 'coin-row' }, [el('span', { class: 'small', text: (why === 'v44_tx_' + x.reason ? x.reason : why) + (x.reason === 'shop' ? ' · ' + borderName(String(x.ref).replace('border:', '')) : '') }), el('span', { class: 'tiny muted', text: fmt(x.created_at) }), el('b', { class: x.amount < 0 ? 'neg' : 'pos', text: (x.amount > 0 ? '+' : '') + x.amount })])); }); hist.appendChild(list); }
+    else { var list = el('div', { class: 'coin-hist' }); coins.tx.forEach(function (x) { var why = t('v44_tx_' + x.reason); list.appendChild(el('div', { class: 'coin-row' }, [el('span', { class: 'small', text: (why === 'v44_tx_' + x.reason ? x.reason : why) + (x.reason === 'shop' ? ' · ' + (/^theme:/.test(String(x.ref)) ? t('w41_themes') + ' ' + String(x.ref).slice(6) : borderName(String(x.ref).replace('border:', ''))) : '') + (x.reason === 'match' && /^mr/.test(String(x.ref)) ? ' · MR' : '') }), el('span', { class: 'tiny muted', text: fmt(x.created_at) }), el('b', { class: x.amount < 0 ? 'neg' : 'pos', text: (x.amount > 0 ? '+' : '') + x.amount })])); }); hist.appendChild(list); }
     R.appendChild(hist);
+    if (window.V45 && V45.shopExtras) { try { V45.shopExtras(R); } catch (e) { console.error('shop extras', e); } }
   }
   function cardNode(b) {
     var eq = shop.equipped === b.id;
@@ -347,7 +353,36 @@
       });
     }
     loadBans();
-    box.appendChild(pSearch); box.appendChild(pBans);
+    box.appendChild(pSearch); box.appendChild(pBans); box.appendChild(grantPanel());
+  }
+  /* event rewards (borders / board themes) – server validates, audit-logged, never touches Elo or coins */
+  function grantPanel() {
+    var p = el('div', { class: 'panel', id: 'admGrant' }, [el('h2', {}, [el('span', { class: 'dot' }), el('span', { text: t('adm_grant_t') })]), el('p', { class: 'small muted', text: t('adm_grant_s') })]);
+    var who = el('input', { type: 'text', id: 'admGrantUser', maxlength: '40', placeholder: t('adm_grant_user') });
+    var kind = el('select', { id: 'admGrantKind' }, [el('option', { value: 'border', text: 'Border' }), el('option', { value: 'theme', text: t('w41_themes') })]);
+    var item = el('select', { id: 'admGrantItem' });
+    var note = el('input', { type: 'text', id: 'admGrantNote', maxlength: '300', placeholder: t('adm_grant_note') });
+    [who, note].forEach(function (i) { i.addEventListener('keydown', function (e) { e.stopPropagation(); }); });
+    function fill() {
+      clear(item);
+      if (kind.value === 'border') BORDER_IDS.filter(function (id) { return id !== 'none'; }).forEach(function (id) { item.appendChild(el('option', { value: id, text: borderName(id) })); });
+      else ['paper', 'ocean', 'forest', 'sunset', 'sakura', 'midnight', 'matrix'].forEach(function (id) { item.appendChild(el('option', { value: id, text: id.charAt(0).toUpperCase() + id.slice(1) })); });
+    }
+    kind.onchange = fill; fill();
+    var go = el('button', { class: 'btn primary', type: 'submit', id: 'admGrantGo', text: t('adm_grant_btn') });
+    p.appendChild(el('form', { class: 'adm-grant', onsubmit: function (e) {
+      e.preventDefault();
+      if (note.value.trim().length < 3) { toast(t('adm_note_req'), 'warn'); return; }
+      confirmBox(t('adm_grant_q', { i: item.options[item.selectedIndex].text, u: who.value.trim() }), function () {
+        go.disabled = true;
+        api('POST', '/api/admin/grant', { user: who.value.trim(), kind: kind.value, id: item.value, note: note.value.trim() }).then(function (r) {
+          go.disabled = false;
+          if (!r.ok) { toast(r.body.error === 'owned' ? t('adm_grant_owned') : err(r.body.error), 'err'); return; }
+          toast(t('adm_grant_ok'), 'ok'); note.value = '';
+        });
+      });
+    } }, [who, kind, item, note, go]));
+    return p;
   }
   function banTable(bans, reload) {
     var wrap = el('div', { class: 'adm-cards' });
@@ -418,7 +453,35 @@
       });
     }
     function decide(x, s) { api('POST', '/api/admin/player-reports/' + x.id, { status: s }).then(function (r) { if (!r.ok) { toast(err(r.body.error), 'err'); return; } toast('✓', 'ok'); load(); }); }
+    load();    box.appendChild(supportPanel());
+  }
+  var supState = 'open';
+  function supportPanel() {
+    var p = el('div', { class: 'panel', id: 'admSupport' }, [el('h2', {}, [el('span', { class: 'dot' }), el('span', { text: t('adm_sup_t') })])]);
+    var segW = el('div'), list = el('div', { class: 'adm-list' });
+    p.appendChild(el('div', { class: 'adm-bar' }, [segW])); p.appendChild(list);
+    function load() {
+      clear(segW).appendChild(segOf(['open', 'resolved', 'all'], supState, function (v) { supState = v; load(); }));
+      clear(list); loadingP(list);
+      api('GET', '/api/admin/support?status=' + supState).then(function (r) {
+        clear(list); if (!r.ok) { list.appendChild(el('p', { class: 'muted small', text: t('adm_err') })); return; }
+        if (!r.body.rows.length) { list.appendChild(el('p', { class: 'muted small', text: t('adm_none') })); return; }
+        r.body.rows.forEach(function (x) {
+          var note = el('input', { type: 'text', maxlength: '500', placeholder: t('adm_note'), value: x.note || '' });
+          note.addEventListener('keydown', function (e) { e.stopPropagation(); });
+          list.appendChild(el('div', { class: 'wcs-adm-r', 'data-sup': String(x.id) }, [
+            el('div', {}, [el('div', {}, [el('b', { text: '#' + x.id + ' ' + (x.username || '?') }), el('span', { class: 'tiny muted mono', text: ' ' + (x.playerId || '') + ' · ' }), el('span', { class: 'small', text: t('sup_' + x.category) }), document.createTextNode(' '), stBadge(x.status)]),
+              el('div', { class: 'small', style: 'white-space:pre-wrap', text: x.body }),
+              el('div', { class: 'tiny muted', text: fmt(x.createdAt) + (x.client ? ' · ' + x.client : '') + (x.admin ? ' · ' + x.admin + (x.note ? ': ' + x.note : '') : '') })]),
+            el('div', { class: 'row' }, [note,
+              x.status === 'open' ? el('button', { class: 'btn sm primary', text: t('adm_resolve'), onclick: function () { decide(x, 'resolved', note.value); } })
+                : el('button', { class: 'btn sm', text: t('adm_reopen'), onclick: function () { decide(x, 'open', note.value); } })])]));
+        });
+      });
+    }
+    function decide(x, st, n) { api('POST', '/api/admin/support/' + x.id, { status: st, note: n }).then(function (r) { if (!r.ok) { toast(err(r.body.error), 'err'); return; } toast('✓', 'ok'); load(); }); }
     load();
+    return p;
   }
   var audState = { action: '', q: '' };
   function renderAudit(box) {
@@ -465,8 +528,9 @@
     Net.on('me', function (m) { if (m && m.user) setBan(m.user.banned); });
     Net.on('hello', function (m) { if (m && m.user) setBan(m.user.banned); });
     Net.on('user', function (u) { setBan(u ? u.banned : null); shop = null; if (isShop()) showShop(); cloudOnUser(u); });
-    setInterval(function () { cloudPush(false); }, 45000);
-    document.addEventListener('visibilitychange', function () { if (document.visibilityState === 'hidden') cloudPush(false); });
+    setInterval(function () { cloudPush(false); }, 8000);
+    document.addEventListener('visibilitychange', function () { if (document.visibilityState === 'hidden') cloudPush('beacon'); });
+    window.addEventListener('pagehide', function () { cloudPush('beacon'); });
   }
 
   /* --------------------------------------------------------------- cloud sync (replaces browser storage)
@@ -475,7 +539,8 @@
   var cloud = { uid: null, ready: false, last: '' };
   function payload() {
     var S = Object.assign({}, APP.settings()); delete S.turn;
-    return { stats: APP.stats(), settings: S };
+    var g = null; try { g = APP.gameSnap ? APP.gameSnap() : null; } catch (e) { g = null; }
+    return { stats: APP.stats(), settings: S, game: g };
   }
   function cloudOnUser(u) {
     if (!u) { cloud = { uid: null, ready: false, last: '' }; return; }
@@ -492,6 +557,9 @@
     var p = payload(), s = JSON.stringify(p);
     if (!force && s === cloud.last) return;
     cloud.last = s;
+    if (force === 'beacon' && s.length < 60000 && window.fetch) {
+      try { fetch(Net.url('/api/me/progress'), { method: 'PUT', keepalive: true, headers: { 'content-type': 'application/json', authorization: 'Bearer ' + Net.token() }, body: JSON.stringify({ progress: p }) }).catch(function () { cloud.last = ''; }); return; } catch (e) { }
+    }
     api('PUT', '/api/me/progress', { progress: p }).then(function (r) { if (!r.ok) cloud.last = ''; });
   }
   function isShop() { var v = $('view-shop'); return v && v.classList.contains('active'); }
