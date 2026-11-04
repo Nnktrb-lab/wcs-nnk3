@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cut">
 <meta name="description" content="WCS – World Championship Sudoku. Only the Best Reach the Final.">
 <title>WCS – World Championship Sudoku</title>
-<link rel="stylesheet" href="v44.css">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Crect width=%2732%27 height=%2732%27 rx=%277%27 fill=%27%230b0b0e%27/%3E%3Cpath d=%27M5 11l5 4 6-8 6 8 5-4-2 13H7z%27 fill=%27%233b82f6%27/%3E%3C/svg%3E">
 <style>
 :root{
@@ -887,6 +886,7 @@ table.lb td.elo{font-family:var(--mono);font-weight:700}
 .badge.gold{background:rgba(212,175,55,.16);color:var(--gold);border:1px solid rgba(212,175,55,.5)}
 .elo-delta .wcs-mr{margin:0 auto}
 </style>
+<link rel="stylesheet" href="v44.css">
 </head>
 <body>
 <div class="shell">
@@ -7034,6 +7034,7 @@ var WCSUI = (function () {
       tabs.appendChild(el('button', { type: 'button', role: 'tab', 'aria-selected': admTab === x[0] ? 'true' : 'false', class: admTab === x[0] ? 'on' : '', 'data-adm': x[0], text: t(x[1]), onclick: function () { admTab = x[0]; clear(box); rAdmin(box); } }));
     });
     head.appendChild(tabs); box.appendChild(head);
+    var onT = tabs.querySelector('.on'); if (onT) setTimeout(function () { tabs.scrollLeft = Math.max(0, onT.offsetLeft - 24); }, 0);
     var body = el('div', { class: 'adm-body' }); box.appendChild(body);
     if (admTab === 'season') return admSeason(body);
     if (admTab === 'ac') return admAc(body);
