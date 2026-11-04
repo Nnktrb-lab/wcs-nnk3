@@ -1,0 +1,36 @@
+PASS three accounts registered
+PASS A and B are friends
+PASS Lepak tab shows hang-out panel
+PASS empty state before joining
+PASS room created and opened
+PASS member strip shows 1 member + 4 free slots
+PASS B receives invite modal
+PASS B joined, full-screen on mobile
+PASS A sees 2 members
+PASS B gets text with sender name
+PASS sender tick confirmed by server
+PASS filtered text marked failed
+PASS sticker delivered
+PASS voice message delivered
+PASS member can play voice
+PASS public room listed for C
+PASS C does not see messages sent before joining
+PASS A sees 3 members
+PASS no horizontal overflow on mobile B
+PASS no horizontal overflow on mobile C
+PASS host removed C
+PASS C back to lounge list
+PASS host made the room private
+PASS private room hidden from non-friend C
+PASS mobile back shows list with current-room card
+PASS unread dot while room closed on mobile
+PASS reopen room
+PASS unread cleared on open
+PASS Chats tab still works
+PASS B left, A sees 1 member
+PASS leave system message shown
+PASS no console/page errors A
+PASS no console/page errors B
+PASS no console/page errors C
+
+34 passed, 0 failed

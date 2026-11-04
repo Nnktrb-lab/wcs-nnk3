@@ -1,0 +1,51 @@
+PASS page title is WCS – World Championship Sudoku
+PASS header brand WCS
+PASS tagline shown
+PASS mobile bottom nav has 6 items incl. WCS
+PASS no horizontal overflow mobile home
+PASS WCS home hero renders for guest
+PASS fresh accounts start at 1200
+PASS NOT QUALIFIED at 1200 with current/needed Elo
+PASS 1999 Elo still NOT QUALIFIED (+1 needed)
+PASS server says eligible=false at 1999
+PASS server rejects wcs_find below 2000
+PASS exactly 2000 Elo opens WCS automatically
+PASS profile shows WCS panel
+PASS profile flag box shows status
+PASS flag locked text after change
+PASS profile country select disabled while locked
+PASS backend blocks second flag change (PATCH)
+PASS backend blocks second flag change (POST)
+PASS next change is 365 days after last
+PASS daily shows attempts out of 3
+PASS daily run board renders 81 cells
+PASS solution is NOT sent to client during an active run
+PASS daily puzzle has a unique solution
+PASS server verifies daily solve and scores it
+PASS daily leaderboard lists the player
+PASS streak counts the server-verified solve
+PASS admin can configure season (minMatches=1)
+PASS non-admin cannot configure season
+PASS WCS qualification match found for both players
+PASS WCS qualification puzzle unique
+PASS WCS qualification result shows +3 points and running W/L/D
+PASS WCS matches are scored by WCS points (Elo unchanged, by design)
+PASS qualification table points/W/L/D correct
+PASS admin ends qualification -> bracket generated
+PASS season moves to knockout with bracket
+PASS bracket shows both finalists
+PASS Grand Final room opens when both are ready
+PASS champion announcement celebration shown
+PASS announcement names champion
+PASS champion announcement can be closed
+PASS Hall of Fame lists champion
+PASS champion holds 1 WCS title
+PASS profile shows WCS CHAMPION + GRANDMASTER SUDOKU
+PASS runner-up has no champion title
+PASS global leaderboard shows champion title badge
+PASS no horizontal overflow mobile/wcs
+PASS no horizontal overflow mobile/rank
+PASS no horizontal overflow mobile/profile
+PASS no console errors desktop
+PASS no console errors mobile (only the 3 intentional 403 probes)
+50 passed, 0 failed
