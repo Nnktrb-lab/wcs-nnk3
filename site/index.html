@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cut">
 <meta name="description" content="WCS – World Championship Sudoku. Only the Best Reach the Final.">
 <title>WCS – World Championship Sudoku</title>
+<link rel="stylesheet" href="v44.css">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Crect width=%2732%27 height=%2732%27 rx=%277%27 fill=%27%230b0b0e%27/%3E%3Cpath d=%27M5 11l5 4 6-8 6 8 5-4-2 13H7z%27 fill=%27%233b82f6%27/%3E%3C/svg%3E">
 <style>
 :root{
@@ -64,7 +65,7 @@ main{max-width:1480px;margin:0 auto;padding:18px}
 .row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
 .col{display:flex;flex-direction:column;gap:8px}
 label.fld{display:flex;flex-direction:column;gap:5px;font-size:12px;color:var(--muted);font-weight:600}
-select,input[type=text],input[type=password],input[type=search],textarea{background:var(--panel2);border:1px solid var(--line);border-radius:var(--radius-sm);padding:8px 10px;color:var(--text);width:100%;min-width:0}
+select,input[type=text],input[type=password],input[type=search],input[type=number],textarea{background:var(--panel2);border:1px solid var(--line);border-radius:var(--radius-sm);padding:8px 10px;color:var(--text);width:100%;min-width:0}
 textarea{resize:vertical;font-family:var(--mono);font-size:12px;min-height:62px}
 .btn{background:var(--panel2);border:1px solid var(--line);border-radius:var(--radius-sm);padding:8px 12px;font-weight:600;font-size:13px;transition:.15s;display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:36px;color:var(--text)}
 .btn:hover:not(:disabled){border-color:var(--accent);background:color-mix(in srgb,var(--accent) 8%,var(--panel2))}
@@ -921,6 +922,7 @@ table.lb td.elo{font-family:var(--mono);font-weight:700}
       <button data-view="versus"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="8" cy="8" r="3"/><circle cx="16" cy="8" r="3"/><path d="M2 20c0-3 2.7-5 6-5s6 2 6 5M14 15.3c.6-.2 1.3-.3 2-.3 3.3 0 6 2 6 5"/></svg><span data-i18n="nav_versus"></span></button>
       <button data-view="chat" class="nav-chat"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h16v11H9l-5 4z"/><path d="M8 9.5h8M8 12.5h5"/></svg><span data-i18n="nav_chat"></span><i class="nbadge hidden" id="navDmBadge"></i></button>
       <button data-view="rank"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 21h8M12 17v4"/><path d="M6 3h12v6a6 6 0 01-12 0z"/><path d="M10 8l2-2v6"/></svg><span data-i18n="nav_rank"></span></button>
+      <button data-view="shop" class="nav-sec nav-shop"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="4.5"/><path d="M12 1.8v2.4M12 19.8v2.4M1.8 12h2.4M19.8 12h2.4"/></svg><span data-i18n="nav_shop"></span></button>
       <button data-view="profile" class="nav-sec"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-6 8-6s8 2 8 6"/></svg><span data-i18n="nav_profile"></span></button>
       <button data-view="settings" class="nav-sec"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 00.3 1.8l.1.1a2 2 0 11-2.8 2.8l-.1-.1a1.7 1.7 0 00-1.8-.3 1.7 1.7 0 00-1 1.5V21a2 2 0 11-4 0v-.1a1.7 1.7 0 00-1.1-1.5 1.7 1.7 0 00-1.8.3l-.1.1a2 2 0 11-2.8-2.8l.1-.1a1.7 1.7 0 00.3-1.8 1.7 1.7 0 00-1.5-1H3a2 2 0 110-4h.1a1.7 1.7 0 001.5-1.1 1.7 1.7 0 00-.3-1.8l-.1-.1a2 2 0 112.8-2.8l.1.1a1.7 1.7 0 001.8.3H9a1.7 1.7 0 001-1.5V3a2 2 0 114 0v.1a1.7 1.7 0 001 1.5 1.7 1.7 0 001.8-.3l.1-.1a2 2 0 112.8 2.8l-.1.1a1.7 1.7 0 00-.3 1.8V9a1.7 1.7 0 001.5 1H21a2 2 0 110 4h-.1a1.7 1.7 0 00-1.5 1z"/></svg><span data-i18n="nav_settings"></span></button>
       <button data-more="1" class="nav-more"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="19" cy="12" r="1.6"/></svg><span data-i18n="nav_more"></span></button>
@@ -934,6 +936,7 @@ table.lb td.elo{font-family:var(--mono);font-weight:700}
   </div>
 </aside>
 <main>
+<div class="ban-bar hidden" id="banBar" role="status" aria-live="polite"></div>
 <!-- ================= PLAY ================= -->
 <section class="view active" id="view-play">
   <div class="play-grid">
@@ -1274,6 +1277,7 @@ table.lb td.elo{font-family:var(--mono);font-weight:700}
 </section>
 
 <!-- ================= SETTINGS ================= -->
+<section class="view" id="view-shop"><div id="shopRoot"></div></section>
 <section class="view" id="view-settings">
   <div class="set-grid">
     <div class="panel">
@@ -3436,13 +3440,14 @@ var APP = (function () {
     if (currentView === 'chat' && v !== 'chat' && window.DM) DM.onHide();
     currentView = v;
     document.querySelectorAll('.view').forEach(function (s) { s.classList.toggle('active', s.id === 'view-' + v); });
-    document.querySelectorAll('#nav button').forEach(function (b) { b.classList.toggle('active', b.getAttribute('data-view') === v || (b.hasAttribute('data-more') && ['learn', 'challenge', 'stats', 'profile', 'settings'].indexOf(v) >= 0)); });
+    document.querySelectorAll('#nav button').forEach(function (b) { b.classList.toggle('active', b.getAttribute('data-view') === v || (b.hasAttribute('data-more') && ['learn', 'challenge', 'stats', 'shop', 'profile', 'settings'].indexOf(v) >= 0)); });
     if (v === 'rank' && window.Board) Board.show();
     if (v === 'chat' && window.DM) DM.onShow();
     if (v === 'profile' && window.Account) Account.show();
     if (v === 'stats') UIX.renderStats();
     if (v === 'learn') UIX.renderLearn();
     if (v === 'wcs' && window.WCSUI) WCSUI.show();
+    if (v === 'shop' && window.V44) V44.showShop();
     if (v === 'challenge') UIX.renderChallengeList();
     if (v === 'settings') UIX.renderSettings();
     lastTick = Date.now();
@@ -3450,7 +3455,7 @@ var APP = (function () {
   }
   function openMore() {
     var list = el('div', { class: 'more-list' });
-    ['learn', 'challenge', 'stats', 'profile', 'settings'].forEach(function (v) {
+    ['learn', 'challenge', 'stats', 'shop', 'profile', 'settings'].forEach(function (v) {
       list.appendChild(el('button', { class: 'btn' + (currentView === v ? ' primary' : ''), text: t('nav_' + v), onclick: function () { clear($('modalRoot')); showView(v); } }));
     });
     modal(t('nav_more'), list, [{ label: t('close') }]);
@@ -4996,7 +5001,7 @@ var MP = (function () {
   function onRoomClosed(m) {
     if (!mp || mp.tr !== 'srv' || m.why === 'self') return;
     if (mp.phase === 'result') { mp.oppGone = true; $('vrMsg').textContent = t('vs_opp_left'); sysChat(t('vs_opp_left')); Voice.closePC(); render(); return; }
-    toast(m.why === 'declined' ? t('vs_declined') : m.why === 'invite_expired' ? t('fr_inv_expired') : t('vs_opp_left'), 'warn');
+    if (m.why !== 'void_ban') toast(m.why === 'declined' ? t('vs_declined') : m.why === 'invite_expired' ? t('fr_inv_expired') : t('vs_opp_left'), 'warn');
     Voice.shutdown(); clearInterval(timer); mp = null; chatLog = []; APP.lockNav(false); render();
   }
   function srvErr(m) {
@@ -5585,6 +5590,8 @@ var Board = (function () {
     if (me && !self) {
       acts.push({ label: t('dm_msg_btn'), cls: 'primary', fn: function () { DM.openWith(p); } });
       if (!p.friend) acts.push({ label: t('dm_add_fr'), fn: function () { if (Social.addById) Social.addById(p.id); } });
+      if (window.V44) acts.push({ label: t('v44_report'), fn: function () { V44.report(p); } });
+      if (window.V44 && me.role === 'admin') acts.push({ label: t('adm_ban_btn'), cls: 'danger', fn: function () { V44.banDialog({ uid: p.id, username: p.username, playerId: p.playerId, avatar: p.avatar, border: p.border }); } });
     }
     acts.push({ label: t('close') });
     modal(t('lb_card'), body, acts);
@@ -5905,7 +5912,7 @@ var DM = (function () {
   function renderHead() {
     if (!th) return;
     var p = th.peer, fr = isFriend(p.id) || p.friend, st = peerStatus();
-    Avatar.fill($('dmAv'), p); $('dmAv').className = 'avx mini-av' + ($('dmAv').classList.contains('has-av') ? ' has-av' : '');
+    Avatar.fill($('dmAv'), p); $('dmAv').className = 'avx mini-av' + ($('dmAv').classList.contains('has-av') ? ' has-av' : ''); if (Avatar.border) Avatar.border($('dmAv'), p);
     $('dmName').textContent = (p.country ? Geo.flag(p.country) + ' ' : '') + p.username;
     var s = $('dmStatus');
     s.textContent = (fr ? statusTxt(st) : t('dm_not_friend')) + (p.playerId ? ' · ' + p.playerId : '') + (p.rating ? ' · Elo ' + p.rating : '');
@@ -7018,24 +7025,50 @@ var WCSUI = (function () {
   }
 
   /* ---------- ADMIN ---------- */
+  var admTab = 'season';
   function rAdmin(box) {
     if (!st || !st.me || !st.me.admin) return loading(box);
-    var s = st.season, p = el('div', { class: 'panel' }, [el('h2', {}, [el('span', { class: 'dot' }), el('span', { text: t('w_admin_t') })])]);
+    var head = el('div', { class: 'panel adm-head' }, [el('h2', {}, [el('span', { class: 'dot' }), el('span', { text: t('w_admin_t') })])]);
+    var tabs = el('div', { class: 'adm-tabs', role: 'tablist' });
+    [['season', 'adm_tab_season'], ['reports', 'adm_tab_reports'], ['ac', 'adm_tab_ac'], ['appeals', 'adm_tab_appeals'], ['bans', 'adm_tab_bans'], ['audit', 'adm_tab_audit']].forEach(function (x) {
+      tabs.appendChild(el('button', { type: 'button', role: 'tab', 'aria-selected': admTab === x[0] ? 'true' : 'false', class: admTab === x[0] ? 'on' : '', 'data-adm': x[0], text: t(x[1]), onclick: function () { admTab = x[0]; clear(box); rAdmin(box); } }));
+    });
+    head.appendChild(tabs); box.appendChild(head);
+    var body = el('div', { class: 'adm-body' }); box.appendChild(body);
+    if (admTab === 'season') return admSeason(body);
+    if (admTab === 'ac') return admAc(body);
+    if (admTab === 'appeals') return admAppeals(body);
+    if (window.V44 && V44.admin[admTab]) return V44.admin[admTab](body);
+  }
+  function admSeason(box) {
+    var s = st.season, p = el('div', { class: 'panel' }, [el('h2', {}, [el('span', { class: 'dot' }), el('span', { text: t('w_cfg') })])]);
     var topN = el('select', { id: 'wcsTopN' }); [2, 4, 8, 16, 32, 64].forEach(function (n) { topN.appendChild(el('option', { value: String(n), text: String(n), selected: n === s.topN ? 'selected' : null })); });
-    var minM = el('input', { type: 'number', min: '1', max: '50', value: String(s.minMatches) }), rh = el('input', { type: 'number', min: '1', max: '168', value: String(s.roundHours) });
+    var minM = el('input', { type: 'number', id: 'wcsMinM', class: 'num-in', min: '1', max: '50', step: '1', inputmode: 'numeric', value: String(s.minMatches) }), rh = el('input', { type: 'number', id: 'wcsRoundH', class: 'num-in', min: '1', max: '168', step: '1', inputmode: 'numeric', value: String(s.roundHours) });
+    [minM, rh].forEach(function (inp) { inp.addEventListener('keydown', function (e) { e.stopPropagation(); }); if (window.V44) V44.noWheel(inp); });
     var locked = s.status !== 'qualification';
-    p.appendChild(el('h3', { text: t('w_cfg') }));
-    p.appendChild(el('div', { class: 'row', style: 'align-items:flex-end' }, [el('label', { class: 'fld' }, [el('span', { text: t('w_topn') }), topN]), el('label', { class: 'fld' }, [el('span', { text: t('w_minm2') }), minM]), el('label', { class: 'fld' }, [el('span', { text: t('w_rh') }), rh]),
-      el('button', { class: 'btn primary', disabled: locked ? 'disabled' : null, text: t('w_save'), onclick: function () { api('POST', '/api/admin/wcs/config', { topN: Number(topN.value), minMatches: Number(minM.value), roundHours: Number(rh.value) }).then(function (r) { toast(r.ok ? '✓' : E(r.body.error), r.ok ? 'ok' : 'err'); loadState().then(render); }); } })]));
-    p.appendChild(el('button', { class: 'btn danger', disabled: locked ? 'disabled' : null, text: t('w_endq'), onclick: function () { confirmBox(t('w_endq_q'), function () { api('POST', '/api/admin/wcs/end-qualification', {}).then(function (r) { toast(r.ok ? '✓' : E(r.body.error), r.ok ? 'ok' : 'err'); loadState().then(render); }); }); } }));
+    var save = el('button', { class: 'btn primary', disabled: locked ? 'disabled' : null, text: t('w_save'), onclick: function () {
+      var a = Number(topN.value), b = Number(minM.value), c = Number(rh.value);
+      if (!Number.isInteger(b) || b < 1 || b > 50 || !Number.isInteger(c) || c < 1 || c > 168) { toast(t('adm_cfg_bad'), 'err'); return; }
+      if (a === s.topN && b === s.minMatches && c === s.roundHours) { toast(t('adm_cfg_same'), 'warn'); return; }
+      save.disabled = true;
+      api('POST', '/api/admin/wcs/config', { topN: a, minMatches: b, roundHours: c }).then(function (r) { save.disabled = false; toast(r.ok ? '✓ ' + t('w_save') : E(r.body.error), r.ok ? 'ok' : 'err'); loadState().then(render); }); } });
+    p.appendChild(el('div', { class: 'adm-cfg' }, [el('label', { class: 'fld' }, [el('span', { text: t('w_topn') }), topN]), el('label', { class: 'fld' }, [el('span', { text: t('w_minm2') }), minM]), el('label', { class: 'fld' }, [el('span', { text: t('w_rh') }), rh])]));
+    p.appendChild(el('div', { class: 'tiny muted adm-cfg-hint', text: t('adm_cfg_hint') }));
+    p.appendChild(el('div', { class: 'row adm-cfg-act' }, [save, el('button', { class: 'btn danger', disabled: locked ? 'disabled' : null, text: t('w_endq'), onclick: function () { confirmBox(t('w_endq_q'), function () { api('POST', '/api/admin/wcs/end-qualification', {}).then(function (r) { toast(r.ok ? '✓' : E(r.body.error), r.ok ? 'ok' : 'err'); loadState().then(render); }); }); } })]));
     box.appendChild(p);
-    var ac = el('div', { class: 'panel' }, [el('h2', {}, [el('span', { class: 'dot' }), el('span', { text: t('w_ac') })])]), ap = el('div', { class: 'panel' }, [el('h2', {}, [el('span', { class: 'dot' }), el('span', { text: t('w_appeals') })])]);
-    box.appendChild(ac); box.appendChild(ap);
+  }
+  function admAc(box) {
+    var ac = el('div', { class: 'panel' }, [el('h2', {}, [el('span', { class: 'dot' }), el('span', { text: t('w_ac') })])]);
+    box.appendChild(ac);
     api('GET', '/api/admin/anticheat').then(function (r) {
       if (!r.ok) return; if (!r.body.rows.length) ac.appendChild(el('p', { class: 'muted', text: t('w_ac_none') }));
-      r.body.rows.forEach(function (x) { var row = el('div', { class: 'wcs-adm-r' }, [el('div', {}, [el('b', { text: (x.username || '#' + x.user_id) + ' · ' + x.kind }), el('div', { class: 'tiny muted mono', text: fmtDT(x.created_at) + ' · ' + String(x.detail_json || '').slice(0, 140) })]), el('div', { class: 'row' }, [el('button', { class: 'btn sm', text: t('w_dismiss'), onclick: function () { decide(x.id, 'dismissed', row); } }), el('button', { class: 'btn sm danger', text: t('w_confirm'), onclick: function () { decide(x.id, 'confirmed', row); } })])]); ac.appendChild(row); });
+      r.body.rows.forEach(function (x) { var row = el('div', { class: 'wcs-adm-r' }, [el('div', {}, [el('b', { text: (x.username || '#' + x.user_id) + ' · ' + x.kind }), el('div', { class: 'tiny muted mono', text: fmtDT(x.created_at) + ' · ' + String(x.detail_json || '').slice(0, 140) })]), el('div', { class: 'row' }, [x.user_id && window.V44 ? el('button', { class: 'btn sm danger', text: t('adm_ban_btn'), onclick: function () { V44.banDialog({ uid: x.user_id, username: x.username || '#' + x.user_id, playerId: '' }, { reason: 'cheating', text: 'Anti-cheat #' + x.id + ' · ' + x.kind }); } }) : null, el('button', { class: 'btn sm', text: t('w_dismiss'), onclick: function () { decide(x.id, 'dismissed', row); } }), el('button', { class: 'btn sm', text: t('w_confirm'), onclick: function () { decide(x.id, 'confirmed', row); } })])]); ac.appendChild(row); });
     });
     function decide(id, s2, row) { api('POST', '/api/admin/anticheat/' + id, { status: s2 }).then(function (r) { if (r.ok) row.remove(); else toast(E(r.body.error), 'err'); }); }
+  }
+  function admAppeals(box) {
+    var ap = el('div', { class: 'panel' }, [el('h2', {}, [el('span', { class: 'dot' }), el('span', { text: t('w_appeals') })])]);
+    box.appendChild(ap);
     api('GET', '/api/admin/appeals').then(function (r) {
       if (!r.ok) return; if (!r.body.rows.length) ap.appendChild(el('p', { class: 'muted', text: t('w_appeals_none') }));
       r.body.rows.forEach(function (x) { var row = el('div', { class: 'wcs-adm-r' }, [el('div', {}, [el('b', { text: x.username + ' · ' + x.ref_type + ' ' + (x.ref_id || '') + ' · ' + x.status }), el('div', { class: 'small', text: x.body })]), x.status === 'open' ? el('div', { class: 'row' }, [el('button', { class: 'btn sm', text: t('w_accept'), onclick: function () { res(x.id, 'accepted', row); } }), el('button', { class: 'btn sm danger', text: t('w_reject'), onclick: function () { res(x.id, 'rejected', row); } })]) : null]); ap.appendChild(row); });
@@ -7225,5 +7258,6 @@ var TurnUI = (function () {
 /* BOOT */
 document.addEventListener('DOMContentLoaded',function(){try{UIX.bindSettings();}catch(e){console.error(e);}APP.init();try{MP.init();}catch(e){console.error('MP init failed',e);}try{Social.init();}catch(e){console.error('Social init failed',e);}try{Account.init();Board.init();}catch(e){console.error('Account init failed',e);}try{Avatar.init();}catch(e){console.error('Avatar init failed',e);}try{DM.init();}catch(e){console.error('DM init failed',e);}try{Lounge.init();}catch(e){console.error('Lounge init failed',e);}try{TurnUI.init();}catch(e){console.error('TURN UI init failed',e);}try{WCSUI.init();}catch(e){console.error('WCS init failed',e);}Net.init();});
 </script>
+<script src="v44.js"></script>
 </body>
 </html>

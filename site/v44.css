@@ -1,0 +1,195 @@
+/* WCS v4.4 — admin tabs, ban system UI, border shop, avatar borders.
+   Loaded after the v4.0 inline stylesheet; only adds rules, keeps the 4.0 look. */
+
+/* ---------- number inputs (season config fix: padding, centered, not clipped) ---------- */
+input[type=number]{background:var(--panel2);border:1px solid var(--line);border-radius:var(--radius-sm);padding:8px 10px;outline:none;width:100%;min-width:0;min-height:40px;font-variant-numeric:tabular-nums}
+input[type=number]:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+input.num-in{text-align:center;font-weight:700;font-size:15px;padding:9px 14px;-moz-appearance:textfield;appearance:textfield}
+input.num-in::-webkit-outer-spin-button,input.num-in::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+input[type=number]:invalid{border-color:color-mix(in srgb,var(--err) 60%,transparent)}
+
+/* ---------- admin layout ---------- */
+.adm-head{display:grid;gap:12px}
+.adm-head h2{margin:0}
+.adm-tabs{display:flex;gap:6px;flex-wrap:wrap}
+.adm-tabs button{border:1px solid var(--line);background:var(--panel2);color:var(--muted);border-radius:999px;padding:7px 14px;font-weight:700;font-size:12.5px;min-height:34px}
+.adm-tabs button:hover{border-color:var(--line2);color:var(--text)}
+.adm-tabs button.on{background:var(--accent);border-color:var(--accent);color:#fff}
+.adm-body{margin-top:14px;display:grid;gap:14px}
+.adm-body .panel+.panel{margin-top:0}
+.adm-cfg{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin:6px 0 10px}
+.adm-cfg label.fld{gap:8px}
+.adm-cfg label.fld>span{padding-left:2px}
+.adm-cfg select{min-height:40px;text-align:center;text-align-last:center;font-weight:700}
+.adm-cfg-hint{margin-bottom:12px}
+.adm-cfg-act{gap:10px}
+@media (max-width:640px){.adm-cfg{grid-template-columns:1fr;gap:12px}.adm-tabs{flex-wrap:nowrap;overflow-x:auto;padding-bottom:4px;scrollbar-width:thin}.adm-tabs button{flex:none}}
+
+.adm-bar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:6px 0 12px}
+.adm-search{flex:1 1 220px;min-width:0}
+.adm-seg{flex-wrap:wrap}
+.adm-list{display:grid;gap:0}
+.adm-prow{cursor:default}
+.adm-who{display:flex;align-items:center;gap:10px;min-width:0}
+.adm-who b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.adm-mini{color:var(--faint)}
+.adm-cards{display:grid;gap:10px;grid-template-columns:repeat(auto-fill,minmax(280px,1fr))}
+.adm-ban{border:1px solid var(--line);border-radius:var(--radius-sm);padding:12px;background:var(--panel2);display:grid;gap:8px;border-left-width:3px}
+.adm-ban.st-active{border-left-color:var(--err)}
+.adm-ban.st-expired{border-left-color:var(--faint)}
+.adm-ban.st-revoked{border-left-color:var(--ok)}
+.adm-ban-h{display:flex;justify-content:space-between;gap:8px;align-items:center}
+.adm-ban-g{display:grid;grid-template-columns:auto 1fr;gap:3px 10px;font-size:12px}
+.adm-ban-g>:nth-child(odd){color:var(--muted)}
+.adm-ban-g>*{min-width:0;overflow-wrap:anywhere}
+.adm-detail{display:grid;gap:10px}
+.adm-tbl td,.adm-tbl th{white-space:nowrap}
+.adm-tbl td.wrap{white-space:normal}
+.adm-ends{color:var(--muted)}
+.adm-custom{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.err-t{color:var(--err);min-height:1em}
+.ok-t{color:var(--ok)}
+.badge.err{color:var(--err);background:var(--err-soft);border-color:transparent}
+.badge.acc{color:#fff;background:var(--accent);border-color:transparent}
+
+/* dialogs */
+.v44-modal{max-width:480px;text-align:left;max-height:calc(100vh - 36px);overflow:auto}
+.v44-modal h3{margin:0 0 12px}
+.v44-form{display:grid;gap:12px}
+.v44-form textarea{min-height:84px;resize:vertical}
+.v44-modal .acts{justify-content:flex-end}
+.ban-modal p{margin:6px 0}
+
+/* ban bar */
+.ban-bar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:var(--err-soft);border:1px solid color-mix(in srgb,var(--err) 45%,transparent);color:var(--text);border-radius:var(--radius);padding:10px 14px;margin:0 0 14px;font-size:13px}
+.ban-bar .ban-left{margin-left:auto;color:var(--err);white-space:nowrap}
+
+/* ---------- shop ---------- */
+.nav-shop svg{color:#fbbf24}
+.shop-head{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap}
+.shop-head h2{margin:0 0 4px}
+.shop-head-l{display:flex;align-items:center;gap:16px;min-width:0}
+.shop-coins{display:flex;align-items:center;gap:8px;background:var(--panel2);border:1px solid var(--line);border-radius:999px;padding:8px 16px}
+.shop-coins b{font-size:20px;font-variant-numeric:tabular-nums}
+.coin-ic{width:18px;height:18px;border-radius:50%;flex:none;display:inline-block;background:radial-gradient(circle at 35% 30%,#fff7c2,#fbbf24 45%,#b45309);box-shadow:inset 0 0 0 2px rgba(180,83,9,.55)}
+.coin-ic.sm{width:13px;height:13px}
+.shop-note{margin:14px 0;display:grid;gap:4px}
+.shop-bar{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+.shop-seg{flex-wrap:wrap}
+.shop-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(176px,1fr));gap:12px}
+.shop-card{border:1px solid var(--line);border-radius:var(--radius);background:var(--panel2);padding:14px 12px 12px;display:grid;gap:10px;justify-items:center;text-align:center;position:relative}
+.shop-card.eq{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}
+.shop-card.r-mythic{background:linear-gradient(180deg,rgba(168,85,247,.10),var(--panel2) 55%)}
+.shop-card.r-legendary{background:linear-gradient(180deg,rgba(251,191,36,.12),var(--panel2) 55%)}
+.shop-card.premium{border-color:rgba(251,191,36,.55);box-shadow:0 0 22px -8px rgba(251,191,36,.6)}
+.shop-stage{height:96px;display:grid;place-items:center;width:100%}
+.shop-info{display:grid;gap:5px;justify-items:center;min-width:0;width:100%}
+.shop-name{font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%}
+.shop-tags{display:flex;gap:4px;flex-wrap:wrap;justify-content:center}
+.shop-price{display:inline-flex;align-items:center;gap:5px;font-variant-numeric:tabular-nums}
+.shop-card .btn{width:100%}
+.rar{font-size:10px;font-weight:800;letter-spacing:.6px;text-transform:uppercase;padding:2px 7px;border-radius:999px;border:1px solid currentColor}
+.rar-common{color:#9db4d8}.rar-rare{color:#38bdf8}.rar-mythic{color:#c084fc}.rar-legendary{color:#fbbf24}
+[data-theme="light"] .rar-common{color:#43597c}[data-theme="light"] .rar-rare{color:#0369a1}[data-theme="light"] .rar-mythic{color:#7e22ce}[data-theme="light"] .rar-legendary{color:#b45309}
+.shop-av{width:64px;height:64px;border-radius:50%;font-size:24px}
+.shop-av.lg{width:64px;height:64px}
+.shop-av.xl{width:72px;height:72px;font-size:28px}
+.coin-hist{display:grid}
+.coin-row{display:grid;grid-template-columns:1fr auto auto;gap:12px;align-items:center;padding:8px 0;border-bottom:1px solid var(--line)}
+.coin-row .pos{color:var(--ok)}.coin-row .neg{color:var(--err)}
+@media (max-width:420px){.shop-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.shop-card{padding:12px 8px 10px}.shop-stage{height:84px}.shop-av,.shop-av.lg{width:56px;height:56px}.coin-row{grid-template-columns:1fr auto}.coin-row .tiny{display:none}}
+
+/* =====================================================================
+   AVATAR BORDERS  —  .bd .bd-<id>
+   ::before = gradient ring (masked), ::after = aura / particles.
+   ===================================================================== */
+@property --bda{syntax:'<angle>';inherits:false;initial-value:0deg}
+.avx.bd,.sp-av.bd,.prof-av.bd{position:relative;overflow:visible!important;isolation:isolate;--bdw:3px;--bdg:conic-gradient(from var(--bda),#3b82f6,#60a5fa,#3b82f6);--bdc:rgba(59,130,246,.55)}
+.bd>svg,.bd>img{border-radius:inherit;overflow:hidden}
+.bd::before{content:'';position:absolute;inset:calc(var(--bdw) * -1);border-radius:inherit;padding:var(--bdw);background:var(--bdg);-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask:linear-gradient(#000 0 0) content-box exclude,linear-gradient(#000 0 0);pointer-events:none;z-index:1}
+.bd::after{content:none;position:absolute;pointer-events:none;border-radius:inherit}
+.mini-av.bd{--bdw:2px}
+.shop-av.bd,.prof-av.bd{--bdw:4px}
+.shop-av.xl.bd{--bdw:5px}
+
+/* animation helpers */
+@keyframes bdspin{to{--bda:360deg}}
+@keyframes bdrot{to{transform:rotate(360deg)}}
+@keyframes bdpulse{0%,100%{opacity:.55;transform:scale(1)}50%{opacity:1;transform:scale(1.06)}}
+@keyframes bdflick{0%,100%{opacity:1}42%{opacity:1}44%{opacity:.35}46%{opacity:1}70%{opacity:.85}72%{opacity:.3}74%{opacity:1}}
+@keyframes bdfade{0%,100%{opacity:.35}50%{opacity:.9}}
+.bd.anim::before,.bd-galaxy::before,.bd-aurora::before,.bd-royal::before,.bd-nebula::before,.bd-thunder::before,.bd-phantom::before,.bd-dragon::before,.bd-celestial::before,.bd-legend::before,.bd-mrstar::before,.bd-phoenix::before,.bd-inferno::before,.bd-legend2::before,.bd-founder::before,.bd-finalist::before,.bd-champion::before,.bd-neon::before,.bd-diamond::before{animation:bdspin 6s linear infinite}
+
+/* glow aura for mythic + legendary (not on 24px chips: lighter on lists/phones) */
+.bd-galaxy::after,.bd-aurora::after,.bd-royal::after,.bd-nebula::after,.bd-thunder::after,.bd-phantom::after,.bd-dragon::after,.bd-celestial::after,.bd-legend::after,.bd-mrstar::after,.bd-phoenix::after,.bd-inferno::after,.bd-legend2::after,.bd-founder::after,.bd-finalist::after,.bd-champion::after{content:'';inset:calc(var(--bdw) * -2.4);background:radial-gradient(closest-side,var(--bdc),transparent 100%);z-index:-1;animation:bdpulse 3.2s ease-in-out infinite}
+.mini-av.bd::after{content:none!important}
+
+/* ---- common (static) ---- */
+.bd-bronze{--bdg:linear-gradient(135deg,#7a431b,#e0a46b 45%,#a8662f 60%,#5a3112)}
+.bd-silver{--bdg:linear-gradient(135deg,#6b7789,#f1f5fb 45%,#9aa7b8 60%,#4b5563)}
+.bd-jade{--bdg:linear-gradient(135deg,#0a6b4b,#7ef0c1 45%,#0f9f6e 65%,#064e3b)}
+.bd-gold{--bdg:linear-gradient(135deg,#8a6508,#ffe08a 40%,#d4a017 60%,#7a5a06)}
+.bd-neon{--bdg:conic-gradient(from var(--bda),#22d3ee,#a855f7,#22d3ee)}
+.bd-neon::before{filter:drop-shadow(0 0 3px rgba(168,85,247,.7))}
+/* ---- rare ---- */
+.bd-frost{--bdg:linear-gradient(135deg,#5ac8fa,#ffffff 35%,#bfe9ff 55%,#3b82f6)}
+.bd-ruby{--bdg:linear-gradient(135deg,#5c0a14,#ff4d6d 40%,#9b111e 70%,#ff8fa3)}
+.bd-sakura{--bdg:linear-gradient(135deg,#ff7aa2,#fff0f5 40%,#ffb7c5 60%,#e75480)}
+.bd-diamond{--bdg:conic-gradient(from var(--bda),#b9f2ff,#ffffff,#7dd3fc,#c4b5fd,#ffffff,#b9f2ff)}
+.bd-jalur{--bdg:repeating-conic-gradient(#cc0001 0 15deg,#ffffff 15deg 30deg)}
+.bd-jalur::after{content:'';inset:auto;right:calc(var(--bdw) * -1.6);top:calc(var(--bdw) * -1.6);width:34%;height:34%;border-radius:50%;background:radial-gradient(circle,#ffcc00 0 38%,#010066 40% 100%);z-index:2;box-shadow:0 0 0 1px rgba(0,0,0,.25)}
+.mini-av.bd-jalur::after{content:none}
+.bd-veteran{--bdg:linear-gradient(135deg,#374151,#d1d5db 40%,#3b82f6 60%,#1e3a8a)}
+/* ---- mythic ---- */
+.bd-galaxy{--bdg:conic-gradient(from var(--bda),#6d28d9,#3b82f6,#ec4899,#6d28d9);--bdc:rgba(109,40,217,.55)}
+.bd-aurora{--bdg:conic-gradient(from var(--bda),#34d399,#22d3ee,#a78bfa,#34d399);--bdc:rgba(52,211,153,.45)}
+.bd-royal{--bdg:conic-gradient(from var(--bda),#4c1d95,#facc15,#7c3aed,#facc15,#4c1d95);--bdc:rgba(124,58,237,.5)}
+.bd-legend{--bdg:conic-gradient(from var(--bda),#1d4ed8,#facc15,#60a5fa,#facc15,#1d4ed8);--bdc:rgba(59,130,246,.55)}
+.bd-mrstar{--bdg:conic-gradient(from var(--bda),#f59e0b,#fff7ed,#f59e0b,#fde68a,#f59e0b);--bdc:rgba(245,158,11,.5)}
+/* new v4.4 mythic */
+.bd-nebula{--bdg:conic-gradient(from var(--bda),#ff6ad5,#c774e8,#ad8cff,#8795e8,#94d0ff,#ff6ad5);--bdc:rgba(199,116,232,.6)}
+.bd-nebula::after{background:radial-gradient(circle at 20% 30%,rgba(255,106,213,.55),transparent 45%),radial-gradient(circle at 80% 70%,rgba(148,208,255,.55),transparent 45%),radial-gradient(closest-side,rgba(173,140,255,.45),transparent);animation:bdrot 9s linear infinite}
+.bd-thunder{--bdg:conic-gradient(from var(--bda),#1e3a8a,#38bdf8,#fde047,#ffffff,#38bdf8,#1e3a8a);--bdc:rgba(56,189,248,.6)}
+.bd-thunder::before{animation:bdspin 2.4s linear infinite,bdflick 3.8s steps(1) infinite}
+.bd-thunder::after{background:radial-gradient(closest-side,rgba(253,224,71,.45),rgba(56,189,248,.35) 60%,transparent);animation:bdflick 3.8s steps(1) infinite}
+.bd-phantom{--bdg:conic-gradient(from var(--bda),#111827,#e5e7eb,#6b7280,transparent,#e5e7eb,#111827);--bdc:rgba(229,231,235,.35)}
+.bd-phantom::before{animation:bdspin 7s linear infinite,bdfade 4s ease-in-out infinite}
+.bd-phantom::after{background:radial-gradient(closest-side,rgba(209,213,219,.35),rgba(17,24,39,.25) 70%,transparent);animation:bdfade 4s ease-in-out infinite}
+.bd-dragon{--bdg:conic-gradient(from var(--bda),#7f1d1d,#dc2626,#f59e0b,#14532d,#dc2626,#f59e0b,#7f1d1d);--bdc:rgba(220,38,38,.55)}
+.bd-dragon::before{animation-duration:4.5s}
+.bd-dragon::after{background:radial-gradient(closest-side,rgba(245,158,11,.5),rgba(220,38,38,.35) 65%,transparent)}
+.bd-celestial{--bdg:conic-gradient(from var(--bda),#fef3c7,#fbbf24,#93c5fd,#ffffff,#fbbf24,#fef3c7);--bdc:rgba(251,191,36,.45)}
+.bd-celestial::after{background:radial-gradient(circle at 50% 0,#fff 0 1.5px,transparent 2.5px),radial-gradient(circle at 100% 50%,#fde68a 0 1.5px,transparent 2.5px),radial-gradient(circle at 50% 100%,#fff 0 1.5px,transparent 2.5px),radial-gradient(circle at 0 50%,#bfdbfe 0 1.5px,transparent 2.5px),radial-gradient(closest-side,rgba(251,191,36,.35),transparent);animation:bdrot 12s linear infinite}
+/* ---- legendary ---- */
+.bd-phoenix{--bdg:conic-gradient(from var(--bda),#ff2d55,#ff6b00,#ffd000,#ff6b00,#ff2d55);--bdc:rgba(255,107,0,.6)}
+.bd-inferno{--bdg:conic-gradient(from var(--bda),#7f0000,#ff3d00,#ff9100,#ffd180,#ff3d00,#7f0000);--bdc:rgba(255,61,0,.6)}
+.bd-inferno::before{animation-duration:3s}
+.bd-founder{--bdg:conic-gradient(from var(--bda),#065f46,#10b981,#facc15,#10b981,#065f46);--bdc:rgba(16,185,129,.5)}
+.bd-finalist{--bdg:conic-gradient(from var(--bda),#94a3b8,#ffffff,#3b82f6,#ffffff,#94a3b8);--bdc:rgba(148,163,184,.5)}
+.bd-champion{--bdg:conic-gradient(from var(--bda),#b45309,#facc15,#fff7ae,#facc15,#b45309);--bdc:rgba(250,204,21,.6)}
+
+/* ---- LEGENDARY 2 (premium): double ring + rotating aura + particles ---- */
+.bd-legend2{--bdg:conic-gradient(from var(--bda),#fde68a,#f59e0b,#ffffff,#22d3ee,#a855f7,#f59e0b,#fde68a);--bdc:rgba(251,191,36,.7)}
+.bd-legend2::before{animation-duration:3.6s;box-shadow:0 0 10px rgba(251,191,36,.55)}
+.bd-legend2::after{inset:calc(var(--bdw) * -3);background:
+  radial-gradient(circle at 50% 2%,#fff 0 1.6px,transparent 2.6px),
+  radial-gradient(circle at 92% 28%,#fde68a 0 1.4px,transparent 2.4px),
+  radial-gradient(circle at 88% 78%,#67e8f9 0 1.6px,transparent 2.6px),
+  radial-gradient(circle at 46% 98%,#fff 0 1.3px,transparent 2.3px),
+  radial-gradient(circle at 8% 72%,#e9d5ff 0 1.6px,transparent 2.6px),
+  radial-gradient(circle at 12% 22%,#fde68a 0 1.3px,transparent 2.3px),
+  conic-gradient(from 0deg,rgba(251,191,36,.0),rgba(251,191,36,.45),rgba(34,211,238,.35),rgba(168,85,247,.4),rgba(251,191,36,.0));
+  -webkit-mask:radial-gradient(closest-side,transparent 62%,#000 66%,#000 88%,transparent 100%);mask:radial-gradient(closest-side,transparent 62%,#000 66%,#000 88%,transparent 100%);
+  border-radius:50%;animation:bdrot 7s linear infinite}
+.bd-legend2.mini-av::before{box-shadow:0 0 5px rgba(251,191,36,.6)}
+.shop-card[data-border="legend2"] .shop-stage{background:radial-gradient(closest-side,rgba(251,191,36,.18),transparent)}
+
+/* lighter on phones: slower animation, no aura behind long lists */
+@media (max-width:640px){
+  .bd::before{animation-duration:9s!important}
+  .lb-wrap .bd::after,.fr-list .bd::after,.wcs-adm-r .bd::after{content:none!important}
+}
+/* reduced motion: keep the look, stop all movement */
+@media (prefers-reduced-motion:reduce){
+  .bd::before,.bd::after{animation:none!important}
+}

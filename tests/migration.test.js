@@ -35,31 +35,33 @@ function seed(db, withAvatar) {
   }
 }
 
+/* v4.4: the repository history before v4.0 is not available, so the upgrade is tested from the real
+   v4.0 db.js (baseline commit) that production runs today: schema 4 → schema 5. */
 function check(tag, file, fromVer, withAvatar) {
   const cur = require(path.join(ROOT, 'server', 'db.js'));
   const bdir = path.join(path.dirname(file), 'backups');
   const db = cur.open(file);
   const v = db.prepare("SELECT v FROM schema_meta WHERE k = 'version'").get().v;
-  ok(v === String(cur.SCHEMA_VERSION) && cur.SCHEMA_VERSION === 4, tag + ': schema upgraded to v4', v);
+  ok(v === String(cur.SCHEMA_VERSION) && cur.SCHEMA_VERSION === 5, tag + ': schema upgraded to v5', v);
   const users = db.prepare('SELECT * FROM users ORDER BY id').all();
-  ok(users.length === 2 && users[0].username === 'Lama1' && users[0].rating === 1236 && users[0].games === 5 && users[0].pw_hash === 'hash1' && users[0].progress_json === '{"solved":12}', tag + ': accounts, Elo and progress intact');
-  ok(users.every((u) => u.dm_policy === 'all'), tag + ': new dm_policy column defaults to "all"');
+  ok(users.length === 2 && users[0].username === 'Lama1' && users[0].rating === 1236 && users[0].peak === 1250 && users[0].games === 5 && users[0].wins === 4 && users[0].pw_hash === 'hash1' && users[0].progress_json === '{"solved":12}', tag + ': accounts, Elo and progress intact');
+  ok(users[0].xp === 777 && users[0].role === 'admin' && users[1].role === 'player', tag + ': XP and roles intact', users.map((u) => [u.xp, u.role]));
   ok(db.prepare('SELECT COUNT(*) n FROM friendships').get().n === 2, tag + ': friendships intact');
   ok(db.prepare('SELECT COUNT(*) n FROM sessions').get().n === 1, tag + ': sessions intact (no forced logout)');
   const m = db.prepare('SELECT * FROM matches ORDER BY id').all();
   ok(m.length === 2 && m[0].result === 'p1' && m[1].ranked === 0, tag + ': match history intact');
+  ok(db.prepare('SELECT COUNT(*) n FROM elo_transactions').get().n === 1 && db.prepare('SELECT COUNT(*) n FROM admin_audit').get().n === 1, tag + ': Elo ledger and old audit rows intact');
   if (withAvatar) {
     ok(users[0].avatar === 'p:7' && users[1].avatar === 'u:1', tag + ': avatar choice intact');
     const a = db.prepare('SELECT data FROM avatars WHERE user_id = 2').get(); ok(a && Buffer.compare(a.data, Buffer.from([1, 2, 3, 4])) === 0, tag + ': uploaded avatar bytes intact');
-  } else ok(db.prepare('PRAGMA table_info(users)').all().some((c) => c.name === 'avatar'), tag + ': v2 avatar column added too');
+  }
   const tables = db.prepare("SELECT name FROM sqlite_master WHERE type = 'table'").all().map((r) => r.name);
-  ok(['dm_messages', 'voice_clips', 'blocks', 'avatars'].every((n) => tables.includes(n)), tag + ': new tables created', tables);
-  ok(['wcs_seasons', 'wcs_entries', 'wcs_ko', 'wcs_champions', 'user_titles', 'elo_transactions', 'xp_transactions', 'flag_change_history', 'activity_days', 'streak_tokens', 'streak_recoveries', 'daily_tournaments', 'solo_runs', 'anticheat_logs', 'appeals', 'admin_audit', 'user_badges'].every((n) => tables.includes(n)), tag + ': v4 WCS tables created');
-  const u4 = db.prepare('SELECT xp, role, streak_cur, wcs_titles FROM users ORDER BY id').all();
-  ok(u4.every((u) => u.xp === 0 && u.role === 'player' && u.streak_cur === 0 && u.wcs_titles === 0), tag + ': v4 user columns default safely (XP 0, role player, no titles)', u4);
-  ok(db.prepare("SELECT COUNT(*) n FROM matches WHERE kind IS NOT NULL").get().n === 2 || db.prepare('PRAGMA table_info(matches)').all().some((c) => c.name === 'kind'), tag + ': matches.kind column added');
+  ok(['coin_tx', 'owned_borders', 'player_bans', 'player_reports'].every((n) => tables.includes(n)), tag + ': v4.4 tables created', tables);
+  ok(users.every((u) => u.coins === 0 && u.border === 'none'), tag + ': new columns default safely (0 coins, no border — nothing auto-given)');
+  ok(db.prepare('PRAGMA table_info(admin_audit)').all().some((c) => c.name === 'target_id'), tag + ': admin_audit.target_id added');
+  ok(db.prepare('SELECT COUNT(*) n FROM owned_borders').get().n === 0 && db.prepare('SELECT COUNT(*) n FROM player_bans').get().n === 0, tag + ': no borders or bans created by migration');
   db.close();
-  const backups = fs.existsSync(bdir) ? fs.readdirSync(bdir).filter((f) => f.startsWith('pre-migrate-v' + fromVer + '-to-v4')) : [];
+  const backups = fs.existsSync(bdir) ? fs.readdirSync(bdir).filter((f) => f.startsWith('pre-migrate-v' + fromVer + '-to-v5')) : [];
   ok(backups.length === 1, tag + ': pre-migration backup written', backups);
   if (backups.length) {
     const Database = require('better-sqlite3');
@@ -68,26 +70,21 @@ function check(tag, file, fromVer, withAvatar) {
     b.close();
   }
   const db2 = cur.open(file);
-  ok(db2.prepare('SELECT COUNT(*) n FROM users').get().n === 2 && db2.prepare('SELECT COUNT(*) n FROM matches').get().n === 2, tag + ': re-open is idempotent');
+  ok(db2.prepare('SELECT COUNT(*) n FROM users').get().n === 2 && db2.prepare('SELECT COUNT(*) n FROM matches').get().n === 2 && db2.prepare('SELECT rating FROM users WHERE id = 1').get().rating === 1236, tag + ': re-open is idempotent');
   db2.close();
   ok(fs.readdirSync(bdir).filter((f) => f.startsWith('pre-migrate') && f.endsWith('.db')).length === 1, tag + ': no extra backup on re-open', fs.readdirSync(bdir));
 }
 
 try {
-  const v1 = oldDbModule('4911cad', 'v1'); ok(v1.SCHEMA_VERSION === 1, 'old v3.0 db.js is schema 1');
-  const f1 = path.join(TMP, 'd1', 'data.db'); fs.mkdirSync(path.dirname(f1), { recursive: true });
-  let d = v1.open(f1); seed(d, false); d.close();
-  check('v1→v4', f1, 1, false);
-
-  const v2 = oldDbModule('f74d95c', 'v2'); ok(v2.SCHEMA_VERSION === 2, 'old v3.2 db.js is schema 2');
-  const f2 = path.join(TMP, 'd2', 'data.db'); fs.mkdirSync(path.dirname(f2), { recursive: true });
-  d = v2.open(f2); seed(d, true); d.close();
-  check('v2→v4', f2, 2, true);
-
-  const v3 = oldDbModule('1b74bde', 'v3'); ok(v3.SCHEMA_VERSION === 3, 'old v3.4 db.js is schema 3');
-  const f3 = path.join(TMP, 'd3', 'data.db'); fs.mkdirSync(path.dirname(f3), { recursive: true });
-  d = v3.open(f3); seed(d, true); d.close();
-  check('v3→v4', f3, 3, true);
+  const base = execSync('git log --format=%h --grep="Baseline v4.0" -n 1', { cwd: ROOT }).toString().trim();
+  const v4 = oldDbModule(base, 'v4'); ok(v4.SCHEMA_VERSION === 4, 'old v4.0 db.js is schema 4');
+  const f4 = path.join(TMP, 'd4', 'data.db'); fs.mkdirSync(path.dirname(f4), { recursive: true });
+  const d = v4.open(f4); seed(d, true);
+  d.prepare("UPDATE users SET xp = 777, role = 'admin' WHERE id = 1").run();
+  d.prepare('INSERT INTO elo_transactions (user_id, match_id, kind, delta, before, after, created_at) VALUES (1, ?, ?, 12, 1224, 1236, ?)').run('m1', 'ranked', Date.now());
+  d.prepare("INSERT INTO admin_audit (admin_id, action, detail, created_at) VALUES (1, 'wcs_config', '{}', ?)").run(Date.now());
+  d.close();
+  check('v4→v5', f4, 4, true);
 } catch (e) { fail++; console.log('FAIL exception', e && e.stack); }
 fs.rmSync(TMP, { recursive: true, force: true });
 console.log(pass + ' passed, ' + fail + ' failed');

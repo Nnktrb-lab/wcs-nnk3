@@ -1,5 +1,5 @@
-FAIL server version 4.0.0
-FAIL schema version 4
+PASS server version 4.4.0
+PASS schema version 5
 PASS custom room countdown says Elo-rated
 PASS custom WIN: 1200 → 1220 (+20, K=40, E=0.5)
 PASS custom LOSE: 1200 → 1180 (−20)
@@ -117,4 +117,4 @@ PASS still locked after 364 days
 PASS change allowed after 365 days, then locked again
 PASS flag history: initial + 2 changes
 
-116 passed, 2 failed
+118 passed, 0 failed
