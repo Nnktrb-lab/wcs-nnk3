@@ -34,7 +34,7 @@ async function admTab(p, tab) { await nav(p, 'wcs'); await p.evaluate(() => WCSU
     const admin = await register(A, 'nnk_trb', 'Rahsia#2026');
     const pl = await register(P, 'Pemain' + stamp, 'Rahsia#2026');
     await sleep(1500); await A.evaluate(() => Net.api('GET', '/api/me').then(() => 0));
-    await A.reload(); await A.waitForFunction(() => window.Net && Net.wsState() === 'on', null, { timeout: 15000 });
+    await A.evaluate(() => Net.api('GET', '/api/me').then((r) => Net.setUser(r.body.user)));
     const role = await A.evaluate(() => Net.user() && Net.user().role); ok(role === 'admin', 'nnk_trb is admin', role);
     ok(pl && pl.role !== 'admin', 'new player is not admin');
     // season config
@@ -107,6 +107,15 @@ async function admTab(p, tab) { await nav(p, 'wcs'); await p.evaluate(() => WCSU
     const mm = await A.evaluate(() => { const i = document.getElementById('wcsMinM'); return { w: i.getBoundingClientRect().width, sw: document.documentElement.scrollWidth }; });
     ok(mm.w > 200 && mm.sw <= 376, 'mobile config inputs full width, no horizontal overflow', mm);
     await admTab(A, 'bans'); await A.screenshot({ path: OUT + '/admin-bans-mobile.png', fullPage: true });
+    // cloud sync: settings + stats follow the account into a fresh tab (no browser storage)
+    ok(await P.evaluate(() => !/localStorage/.test(document.documentElement.outerHTML)), 'no browser storage used');
+    await P.evaluate(() => { APP.setSetting('lang', 'en'); APP.stats().played = 42; return V44.cloudPush(true); }); await sleep(1500);
+    const Q = await mk(b, 1024, 768);
+    await Q.evaluate((n) => Net.api('POST', '/api/auth/login', { username: n, password: 'Rahsia#2026' }).then((r) => Net.setSession(r.body.token, r.body.user)), 'Pemain' + stamp);
+    await Q.waitForFunction(() => window.V44 && V44._cloud().ready, null, { timeout: 10000 }); await sleep(300);
+    const qs = await Q.evaluate(() => ({ lang: APP.settings().lang, played: APP.stats().played, htmlLang: document.documentElement.lang }));
+    ok(qs.lang === 'en' && qs.played === 42, 'settings + stats restored from server on sign-in', qs);
+    ok(Q.errs.length === 0, 'no console errors in restored tab', Q.errs);
     ok(A.errs.length === 0 && P.errs.length === 0, 'no console errors', A.errs.concat(P.errs));
   } catch (e) { fail++; res.push('FAIL exception ' + (e && e.stack)); console.log(e); }
   await b.close();

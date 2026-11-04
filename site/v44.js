@@ -464,11 +464,39 @@
     Net.on('result', function (m) { if (m && m.coins) setTimeout(function () { toast(t('v44_coins_won', { n: m.coins }), 'ok'); }, 900); if (m && m.user) refreshMe(m.user); shop = null; });
     Net.on('me', function (m) { if (m && m.user) setBan(m.user.banned); });
     Net.on('hello', function (m) { if (m && m.user) setBan(m.user.banned); });
-    Net.on('user', function (u) { setBan(u ? u.banned : null); shop = null; if (isShop()) showShop(); });
+    Net.on('user', function (u) { setBan(u ? u.banned : null); shop = null; if (isShop()) showShop(); cloudOnUser(u); });
+    setInterval(function () { cloudPush(false); }, 45000);
+    document.addEventListener('visibilitychange', function () { if (document.visibilityState === 'hidden') cloudPush(false); });
+  }
+
+  /* --------------------------------------------------------------- cloud sync (replaces browser storage)
+     Settings + statistics of a signed-in player are restored from the server once per sign-in and
+     pushed back when they change. TURN secrets are never sent (server strips them as well). */
+  var cloud = { uid: null, ready: false, last: '' };
+  function payload() {
+    var S = Object.assign({}, APP.settings()); delete S.turn;
+    return { stats: APP.stats(), settings: S };
+  }
+  function cloudOnUser(u) {
+    if (!u) { cloud = { uid: null, ready: false, last: '' }; return; }
+    if (cloud.uid === u.id) return;
+    cloud = { uid: u.id, ready: false, last: '' };
+    api('GET', '/api/me/progress').then(function (r) {
+      if (cloud.uid !== u.id) return;
+      if (r.ok && r.body.progress) { APP.adopt(r.body.progress); cloud.last = JSON.stringify(payload()); cloud.ready = true; }
+      else if (r.ok) { cloud.ready = true; cloudPush(true); }
+    });
+  }
+  function cloudPush(force) {
+    if (!cloud.ready || !Net.user() || Net.user().id !== cloud.uid) return;
+    var p = payload(), s = JSON.stringify(p);
+    if (!force && s === cloud.last) return;
+    cloud.last = s;
+    api('PUT', '/api/me/progress', { progress: p }).then(function (r) { if (!r.ok) cloud.last = ''; });
   }
   function isShop() { var v = $('view-shop'); return v && v.classList.contains('active'); }
 
   window.V44 = { init: init, showShop: showShop, report: report, banDialog: banDialog, playerDetail: playerDetail, applyBorder: applyBorder, noWheel: noWheel,
-    admin: { bans: renderBans, reports: renderReports, audit: renderAudit }, _state: function () { return { shop: shop, ban: ban }; } };
+    admin: { bans: renderBans, reports: renderReports, audit: renderAudit }, cloudPush: cloudPush, _cloud: function () { return cloud; }, _state: function () { return { shop: shop, ban: ban }; } };
   document.addEventListener('DOMContentLoaded', function () { try { init(); } catch (e) { console.error('V44 init failed', e); } });
 })();

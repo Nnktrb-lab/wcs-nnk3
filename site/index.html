@@ -2292,7 +2292,7 @@ var I18N = {
     t_custom_multi: 'Puzzle mempunyai lebih daripada satu penyelesaian.', t_custom_few: 'Puzzle memerlukan sekurang-kurangnya 17 nombor asal.', t_custom_timeout: 'Pengesahan mengambil masa terlalu lama.',
     t_custom_ok: 'Puzzle sah dengan satu penyelesaian. Tahap: {d}.', t_custom_beyond: 'Puzzle sah, tetapi memerlukan teknik di luar sokongan solver (Extreme+).',
     t_undo_none: 'Tiada tindakan untuk diundur.', t_reset: 'Papan dikembalikan ke keadaan asal.', t_saved_restore: 'Permainan terakhir dipulihkan.',
-    t_ratelimit: 'Tunggu sebentar sebelum menghantar lagi.', t_copied: 'Kod disalin.', t_storage: 'Storan tempatan tidak tersedia: data hanya disimpan sementara.',
+    t_ratelimit: 'Tunggu sebentar sebelum menghantar lagi.', t_copied: 'Kod disalin.', t_storage: 'Tetapan dan statistik disimpan di server secara automatik apabila anda log masuk. Tanpa log masuk, data hanya kekal sehingga halaman dimuat semula.',
     t_killer_custom: 'Custom Killer belum tersedia (NOT IMPLEMENTED).', t_noreplay: 'Tiada langkah seterusnya dalam sejarah.',
     t_nostep_hist: 'Tiada langkah bot untuk diundur.', t_solution_shown: 'Penyelesaian dipaparkan. Permainan ini tidak dikira selesai.',
     t_hint_tech: 'Hint: Cuba teknik {t} di kawasan yang ditonjolkan.', t_hint_cell: 'Hint: Lihat cell {c}.',
@@ -2386,7 +2386,7 @@ var I18N = {
     t_custom_multi: 'The puzzle has more than one solution.', t_custom_few: 'A puzzle needs at least 17 givens.', t_custom_timeout: 'Validation took too long.',
     t_custom_ok: 'Valid puzzle with a unique solution. Level: {d}.', t_custom_beyond: 'Valid puzzle, but it needs techniques beyond the solver (Extreme+).',
     t_undo_none: 'Nothing to undo.', t_reset: 'Board restored to its initial state.', t_saved_restore: 'Last game restored.',
-    t_ratelimit: 'Please wait before sending again.', t_copied: 'Code copied.', t_storage: 'Local storage unavailable: data is only kept temporarily.',
+    t_ratelimit: 'Please wait before sending again.', t_copied: 'Code copied.', t_storage: 'Settings and statistics are saved to the server automatically while you are signed in. Without signing in, data only lasts until the page is reloaded.',
     t_killer_custom: 'Custom Killer is not available yet (NOT IMPLEMENTED).', t_noreplay: 'No next step in history.',
     t_nostep_hist: 'No bot step to go back to.', t_solution_shown: 'Solution shown. This game does not count as completed.',
     t_hint_tech: 'Hint: Try {t} in the highlighted area.', t_hint_cell: 'Hint: Look at cell {c}.',
@@ -2703,11 +2703,12 @@ function techExampleState(techId) {
 /* ===================== 18. STORAGE & MIGRATION ===================== */
 var Store = (function () {
   'use strict';
-  var KEY = 'sla.v2', mem = {}, ok = true;
-  try { var tk = '__sla_t'; window.localStorage.setItem(tk, '1'); window.localStorage.removeItem(tk); } catch (e) { ok = false; }
-  function get(k) { try { if (ok) { var v = window.localStorage.getItem(k); return v === null ? null : JSON.parse(v); } } catch (e) { } return mem[k] === undefined ? null : JSON.parse(mem[k]); }
-  function set(k, v) { var s = JSON.stringify(v); try { if (ok) { window.localStorage.setItem(k, s); return; } } catch (e) { ok = false; } mem[k] = s; }
-  function del(k) { try { if (ok) window.localStorage.removeItem(k); } catch (e) { } delete mem[k]; }
+  /* v4.4: no browser storage. State lives in memory for this tab; signed-in players' settings and
+     statistics are synced to the server automatically (see V44 cloud sync in v44.js). */
+  var KEY = 'sla.v2', mem = {}, ok = false;
+  function get(k) { return mem[k] === undefined ? null : JSON.parse(mem[k]); }
+  function set(k, v) { mem[k] = JSON.stringify(v); }
+  function del(k) { delete mem[k]; }
   var DEFAULT_SETTINGS = { lang: 'bm', theme: 'dark', mistakeLimit: true, highlight: true, autoNotes: true, autoPause: true, showTimer: true, name: '', chatMute: false, chatText: false, chatBg: 'default', chatBgDim: 0, vMic: '', vClear: false, vLowLat: true, vVol: 100, vGain: 100, turn: null, online: false };
   function defaultStats() { return { played: 0, completed: 0, lost: 0, totalTime: 0, best: {}, hints: 0, steps: 0, correct: 0, wrong: 0, techPracticed: {}, techLearned: {}, challenges: {} }; }
   /* Load + migrate. Older/unknown data never disables the 3-mistake rule. */
@@ -3553,7 +3554,15 @@ var APP = (function () {
     game: function () { return G; }, newGame: newGame, applyI18n: applyI18n, resetAllData: function () { Store.del(Store.KEY); ST = Store.defaultStats(); data.stats = ST; S = Object.assign({}, Store.DEFAULT_SETTINGS); data.settings = S; G = null; save(); applyTheme(); applyI18n(); newGame({ variant: 'classic', diff: 'easy' }); },
     resetStats: function () { var fresh = Store.defaultStats(); Object.keys(ST).forEach(function (k) { delete ST[k]; }); Object.assign(ST, fresh); save(); },
     _debug: { inputDigit: inputDigit, select: function (i) { sel = i; renderBoard(); }, findNext: findNext, botNext: botNext, botPrev: botPrev, state: function () { return { G: G, sel: sel, pending: pending, pendingMode: pendingMode, bot: bot, pencil: pencil }; } },
-    renderStatus: renderStatus, renderBoard: renderBoard
+    renderStatus: renderStatus, renderBoard: renderBoard,
+    /* v4.4: adopt settings + statistics restored from the server (in place, no reload) */
+    adopt: function (p) {
+      if (!p || typeof p !== 'object') return;
+      if (p.settings && typeof p.settings === 'object') { var keepTurn = S.turn; Object.assign(S, p.settings); if (keepTurn) S.turn = keepTurn; }
+      if (p.stats && typeof p.stats === 'object') { var fresh = Object.assign(Store.defaultStats(), p.stats); Object.keys(ST).forEach(function (k) { delete ST[k]; }); Object.assign(ST, fresh); }
+      save(); applyTheme(); applyI18n();
+      try { if (window.UIX && UIX.refresh) ['stats', 'settings', 'learn', 'challenge'].forEach(function (v) { UIX.refresh(v); }); } catch (e) { }
+    }
   };
 })();
 
@@ -3721,7 +3730,7 @@ var UIX = (function () {
     ['Puzzle Generator (unique, seeded, graded)', 'COMPLETE'], ['Custom Puzzle (Classic)', 'COMPLETE'], ['Killer Sudoku', 'BETA'], ['Custom Killer', 'NOT_IMPLEMENTED'],
     ['Hint / Explain / Check / Solution / Undo / Reset', 'COMPLETE'], ['Pause / Resume + 3-mistake rule', 'COMPLETE'],
     ['Statistics & Learning Progress', 'COMPLETE'], ['Learning Challenges', 'COMPLETE'], ['Technique Library', 'COMPLETE'],
-    ['Storage & Migration (localStorage + memory fallback)', 'COMPLETE'], ['BM / EN + Light / Dark', 'COMPLETE'],
+    ['Storage & Migration (server sync + memory)', 'COMPLETE'], ['BM / EN + Light / Dark', 'COMPLETE'],
     ['Accounts & Auth (server: scrypt hash, sessions, rate limit, recovery code)', 'COMPLETE'], ['Player Profile, Player ID, Friend ID, Country/State', 'COMPLETE'],
     ['1vs1 Multiplayer (server-authoritative rooms)', 'COMPLETE'], ['Killer 1vs1 (server-validated cages, Medium/Hard)', 'BETA'], ['Ranked Matchmaking (server, mode + difficulty chosen by player)', 'COMPLETE'],
     ['Elo Rating (server-calculated, K=40/20, 7 tiers)', 'COMPLETE'], ['Friends, Presence & Private Invites (server)', 'COMPLETE'], ['Leaderboard (global / country / state)', 'COMPLETE'],
@@ -3935,7 +3944,7 @@ var UIX = (function () {
     var S = APP.settings();
     $('setMistake').checked = S.mistakeLimit; $('setHighlight').checked = S.highlight; $('setAutoNotes').checked = S.autoNotes; $('setAutoPause').checked = S.autoPause; $('setTimer').checked = S.showTimer;
     $('setName').value = S.name || '';
-    $('storageNote').textContent = Store.ok() ? 'localStorage: OK (' + location.origin.replace(/^null$/, 'file://') + ')' : t('t_storage');
+    $('storageNote').textContent = t('t_storage');
     var tb = clear($('compTable'));
     COMPONENTS.forEach(function (c) { tb.appendChild(el('tr', {}, [el('td', { text: c[0] }), el('td', {}, [el('span', { class: 'badge ' + c[1], text: c[1].replace('_', ' ') })])])); });
     var gb = clear($('guideBody'));
@@ -4070,12 +4079,13 @@ var Stickers = (function () {
 var ChatWall = (function () {
   'use strict';
   /* Chat wallpaper like WhatsApp: built-in patterns (adapt to light/dark), solid colours, or a picture from the
-     gallery. Stored on THIS device only (settings.chatBg / chatBgDim + a separate localStorage key for the image),
+     gallery. Stored on THIS device only (settings.chatBg / chatBgDim + an in-memory image for this tab),
      never uploaded and never sent to the opponent. */
   var IMG_KEY = 'sla.chatbg.v1', MAX_IMG = 400 * 1024;
   var PRESETS = ['default', 'plain', 'grid', 'digits', 'diag', 'waves', 'blue', 'night', 'mist', 'custom'];
-  function getImg() { try { return window.localStorage.getItem(IMG_KEY) || ''; } catch (e) { return ''; } }
-  function setImg(d) { try { if (d) window.localStorage.setItem(IMG_KEY, d); else window.localStorage.removeItem(IMG_KEY); return true; } catch (e) { return false; } }
+  var imgMem = '';
+  function getImg() { return imgMem; }
+  function setImg(d) { imgMem = d || ''; return true; }
   function cur() { var S = APP.settings(), b = S.chatBg; if (PRESETS.indexOf(b) < 0 || (b === 'custom' && !getImg())) b = 'default'; return b; }
   function dim() { var d = +APP.settings().chatBgDim; return isFinite(d) ? Math.max(0, Math.min(70, Math.round(d))) : 0; }
   function paint(box, id, d, img) {
